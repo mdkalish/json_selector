@@ -13,7 +13,7 @@ module.exports = {
     filename: 'bundle.js',
     publicPath: '/static/',
     libraryTarget: "var",
-    library: "Foo"
+    library: "JSelector"
   },
   plugins: [
     new webpack.HotModuleReplacementPlugin()

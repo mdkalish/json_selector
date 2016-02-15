@@ -7,7 +7,7 @@ var config = {
     path: path.resolve(__dirname, 'dist'),
     filename: 'bundle.js',
     libraryTarget: "var",
-    library: "Foo"
+    library: "JSelector"
   },
   module: {
     loaders: [{

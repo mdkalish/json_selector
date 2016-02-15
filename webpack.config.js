@@ -1,24 +1,28 @@
 var path = require('path');
-var node_modules_dir = path.resolve(__dirname, 'node_modules');
+var webpack = require('webpack');
 
-var config = {
-  entry: path.resolve(__dirname, 'src/index.js'),
+module.exports = {
+  devtool: 'eval',
+  entry: [
+    'webpack-dev-server/client?http://localhost:3000/',
+    'webpack/hot/only-dev-server',
+    './src/index'
+  ],
   output: {
-    path: path.resolve(__dirname, 'dist'),
+    path: path.join(__dirname, 'dist'),
     filename: 'bundle.js',
+    publicPath: '/static/',
     libraryTarget: "var",
     library: "JSelector"
   },
+  plugins: [
+    new webpack.HotModuleReplacementPlugin()
+  ],
   module: {
     loaders: [{
       test: /\.js$/,
-
-      // There is not need to run the loader through
-      // vendors
-      exclude: [node_modules_dir],
-      loader: 'babel'
+      loaders: ['react-hot', 'babel'],
+      include: path.join(__dirname, 'src')
     }]
   }
 };
-
-module.exports = config;

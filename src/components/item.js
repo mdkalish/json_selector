@@ -1,6 +1,4 @@
 import React, { Component } from 'react';
-require('json-loader')
-// import ReactDOM from 'react-dom';
 const test_json = require('json!./fullcontact.json')
 
 var Item = React.createClass({

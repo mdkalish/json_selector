@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-const test_json = require('json!./fullcontact.json')
+const test_json = require('json!../../narzedzia/fullcontact_ws.json')
 
 var Item = React.createClass({
   getInitialState: function() {
@@ -12,7 +12,6 @@ var Item = React.createClass({
     return (
       <div>
         <h3>Fullcontact</h3>
-        {console.log(this.state)}
       </div>
     );
   },

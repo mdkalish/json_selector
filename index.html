@@ -8,5 +8,20 @@
     <div id='item'>
     </div>
     <script src="/static/bundle.js"></script>
+
+    <!-- ONLY FOR LOCAL DEVELOPMENT -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script>
+      function jSelect() {
+        var mk = $.getJSON('./narzedzia/fullcontact_mk.json')
+        var ws = $.getJSON('./narzedzia/fullcontact_ws.json')
+        JSelector.render(document.getElementById('root'), mk, ws)
+      }
+    </script>
+    <div id="JSelectBtn">
+      <button onclick="jSelect()">Go!</button>
+    </div>
+    <!-- /ONLY FOR LOCAL DEVELOPMENT -->
+
   </body>
 </html>

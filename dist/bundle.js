@@ -69,8 +69,12 @@ var JSelector =
 	function render(domElement, fullcontactData, sObjectData) {
 	  console.log('fullcontactData');
 	  console.log(fullcontactData);
+	  console.log('fullcontactData.socialProfiles');
+	  console.log(fullcontactData.socialProfiles);
 	  console.log('sObjectData');
 	  console.log(sObjectData);
+	  console.log('sObjectData.socialProfiles');
+	  console.log(sObjectData.socialProfiles);
 
 	  _reactDom2.default.render(_react2.default.createElement(_App2.default, null), domElement);
 	};

@@ -25,5 +25,9 @@ export function render(domElement, fullcontactData, sObjectData) {
   console.log(fullcontactKeys)
   */
 
-  ReactDOM.render(<App />, domElement)
+  ReactDOM.render(
+    <App fullcontactData={fullcontactData}
+         sObjectData={sObjectData} />,
+    domElement
+  )
 };

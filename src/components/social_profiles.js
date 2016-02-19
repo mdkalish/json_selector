@@ -9,9 +9,8 @@ var SocialProfiles = React.createClass({
     };
   },
 
-  matchCounterpart: function(key, value, type) {
-    var sObjectSocialMedia = this.props.sObjectData
-    for (var socialMedium of sObjectSocialMedia) {
+  findInSObject: function(key, type) {
+    for (var socialMedium of this.props.sObjectData) {
       if (socialMedium.type === type) {
         var sOValue = socialMedium[key];
       }
@@ -20,39 +19,39 @@ var SocialProfiles = React.createClass({
   },
 
   render: function() {
-    var matchCounterpart = this.matchCounterpart;
+    var findInSObject = this.findInSObject;
     var SocialProfileNodes = this.props.fullcontactData.map(function(socialProfile) {
-    var type = socialProfile.type
+      var type = socialProfile.type
       return (
         <SocialProfile
           key={'socialProfile_' + socialProfile.typeId}
 
           bioFc={socialProfile.bio}
-          bioSo={matchCounterpart('bio', socialProfile.bio, type)}
+          bioSo={findInSObject('bio', type)}
 
           followersFc={socialProfile.followers}
-          followersSo={matchCounterpart('followers', socialProfile.followers, type)}
+          followersSo={findInSObject('followers', type)}
 
           followingFc={socialProfile.following}
-          followingSo={matchCounterpart('following', socialProfile.following, type)}
+          followingSo={findInSObject('following', type)}
 
           idFc={socialProfile.id}
-          idSo={matchCounterpart('id', socialProfile.id, type)}
+          idSo={findInSObject('id', type)}
 
           rssFc={socialProfile.rss}
-          rssSo={matchCounterpart('rss', socialProfile.rss, type)}
+          rssSo={findInSObject('rss', type)}
 
           typeIdFc={socialProfile.typeId}
-          typeIdSo={matchCounterpart('typId', socialProfile.typId, type)}
+          typeIdSo={findInSObject('typId', type)}
 
           typeNameFc={socialProfile.typeName}
-          typeNameSo={matchCounterpart('typeName', socialProfile.typeName, type)}
+          typeNameSo={findInSObject('typeName', type)}
 
           urlFc={socialProfile.url}
-          urlSo={matchCounterpart('url', socialProfile.url, type)}
+          urlSo={findInSObject('url', type)}
 
           usernameFc={socialProfile.username}
-          usernameSo={matchCounterpart('username', socialProfile.username, type)}
+          usernameSo={findInSObject('username', type)}
         />
       );
     });

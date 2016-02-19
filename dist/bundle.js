@@ -20147,7 +20147,7 @@ var JSelector =
 /* 162 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
+	"use strict";
 
 	var _react = __webpack_require__(1);
 
@@ -20160,7 +20160,7 @@ var JSelector =
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var SocialProfiles = _react2.default.createClass({
-	  displayName: 'SocialProfiles',
+	  displayName: "SocialProfiles",
 
 	  getInitialState: function getInitialState() {
 	    return {
@@ -20202,51 +20202,32 @@ var JSelector =
 
 	  render: function render() {
 	    var findInSObject = this.findInSObject;
-	    var sObjectSocialMedia = this.props.sObjectData.map(function (sm) {
-	      return sm.type;
-	    });
+	    // var sObjectSocialMedia = this.props.sObjectData.map(function(sm){ return sm.type })
 	    var SocialProfileNodes = this.props.fullcontactData.map(function (socialProfile) {
 	      var type = socialProfile.type;
-	      if (sObjectSocialMedia.includes(type)) {
-	        return _react2.default.createElement(_social_profile2.default, {
-	          key: 'socialProfile_' + socialProfile.typeId,
+	      // if (sObjectSocialMedia.includes(type)) {
+	      return _react2.default.createElement(_social_profile2.default, {
+	        key: "socialProfile_" + socialProfile.typeId,
 
-	          bioFc: socialProfile.bio,
-	          bioSo: findInSObject('bio', type),
-
-	          followersFc: socialProfile.followers,
-	          followersSo: findInSObject('followers', type),
-
-	          followingFc: socialProfile.following,
-	          followingSo: findInSObject('following', type),
-
-	          idFc: socialProfile.id,
-	          idSo: findInSObject('id', type),
-
-	          rssFc: socialProfile.rss,
-	          rssSo: findInSObject('rss', type),
-
-	          typeIdFc: socialProfile.typeId,
-	          typeIdSo: findInSObject('typeId', type),
-
-	          typeNameFc: socialProfile.typeName,
-	          typeNameSo: findInSObject('typeName', type),
-
-	          urlFc: socialProfile.url,
-	          urlSo: findInSObject('url', type),
-
-	          usernameFc: socialProfile.username,
-	          usernameSo: findInSObject('username', type)
-	        });
-	      }
+	        bio: [findInSObject("bio", type), socialProfile.bio],
+	        followers: [findInSObject("followers", type), socialProfile.followers],
+	        following: [findInSObject("following", type), socialProfile.following],
+	        id: [findInSObject("id", type), socialProfile.id],
+	        rss: [findInSObject("rss", type), socialProfile.rss]
+	        // typeId={[findInSObject("typeId", type), socialProfile.typeId]}
+	        , typeName: [findInSObject("typeName", type), socialProfile.typeName],
+	        url: [findInSObject("url", type), socialProfile.url],
+	        username: [findInSObject("username", type), socialProfile.username]
+	      });
+	      // }
 	    });
 	    return _react2.default.createElement(
-	      'div',
-	      { className: 'socialProfiles' },
+	      "div",
+	      { className: "socialProfiles" },
 	      _react2.default.createElement(
-	        'h2',
+	        "h2",
 	        null,
-	        'SocialProfiles'
+	        "SocialProfiles"
 	      ),
 	      SocialProfileNodes
 	    );
@@ -20270,16 +20251,44 @@ var JSelector =
 	var SocialProfilePair = _react2.default.createClass({
 	  displayName: "SocialProfilePair",
 
+	  backgroundColor: function backgroundColor(value) {
+	    if (typeof value === "undefined") {
+	      return "grey";
+	    }
+	  },
+
 	  render: function render() {
+	    // console.log('this.props')
+	    // console.log(this.props)
 	    return _react2.default.createElement(
 	      "div",
 	      null,
 	      _react2.default.createElement(
-	        "span",
-	        { className: "socialProfilePair" },
-	        this.props.key_part,
-	        ": ",
-	        this.props.value_part
+	        "table",
+	        { className: "socialProfilePair", style: { border: '1px solid black' } },
+	        _react2.default.createElement(
+	          "tbody",
+	          null,
+	          _react2.default.createElement(
+	            "tr",
+	            null,
+	            _react2.default.createElement(
+	              "td",
+	              null,
+	              this.props.key_part.toUpperCase()
+	            ),
+	            _react2.default.createElement(
+	              "td",
+	              { style: { "backgroundColor": this.backgroundColor(this.props.value_part[0]) } },
+	              typeof this.props.value_part[0] === "undefined" ? "undefined" : this.props.value_part[0]
+	            ),
+	            _react2.default.createElement(
+	              "td",
+	              { style: { "backgroundColor": this.backgroundColor(this.props.value_part[1]) } },
+	              typeof this.props.value_part[1] === "undefined" ? "undefined" : this.props.value_part[1]
+	            )
+	          )
+	        )
 	      )
 	    );
 	  }
@@ -20290,13 +20299,8 @@ var JSelector =
 
 	  render: function render() {
 	    var SocialProfileNodes = [];
-	    /*
-	    {console.log(this.props)}
-	    {console.log('this.props.typeIdSo')}
-	    {console.log(this.props.typeIdSo)}
-	    */
 	    for (var key in this.props) {
-	      if (this.props.hasOwnProperty(key) && typeof this.props[key] !== "undefined") {
+	      if (this.props.hasOwnProperty(key) && this.props[key][0] !== this.props[key][1] && key !== "typeName") {
 	        SocialProfileNodes.push(_react2.default.createElement(SocialProfilePair, {
 	          key: 'socialProfilePair_' + key + this.props[key],
 	          key_part: key,
@@ -20308,9 +20312,9 @@ var JSelector =
 	      "div",
 	      null,
 	      _react2.default.createElement(
-	        "h4",
+	        "h3",
 	        null,
-	        this.props.typeNameFc
+	        this.props.typeName.filter(Boolean)[0]
 	      ),
 	      SocialProfileNodes
 	    );

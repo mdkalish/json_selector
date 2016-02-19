@@ -1,5 +1,5 @@
-import React from 'react';
-import SocialProfile from './social_profile.js';
+import React from "react";
+import SocialProfile from "./social_profile.js";
 
 var SocialProfiles = React.createClass({
   getInitialState: function() {
@@ -20,43 +20,26 @@ var SocialProfiles = React.createClass({
 
   render: function() {
     var findInSObject = this.findInSObject;
-    var sObjectSocialMedia = this.props.sObjectData.map(function(sm){ return sm.type })
+    // var sObjectSocialMedia = this.props.sObjectData.map(function(sm){ return sm.type })
     var SocialProfileNodes = this.props.fullcontactData.map(function(socialProfile) {
       var type = socialProfile.type
-      if (sObjectSocialMedia.includes(type)) {
+      // if (sObjectSocialMedia.includes(type)) {
         return (
           <SocialProfile
-            key={'socialProfile_' + socialProfile.typeId}
+            key={"socialProfile_" + socialProfile.typeId}
 
-            bioFc={socialProfile.bio}
-            bioSo={findInSObject('bio', type)}
-
-            followersFc={socialProfile.followers}
-            followersSo={findInSObject('followers', type)}
-
-            followingFc={socialProfile.following}
-            followingSo={findInSObject('following', type)}
-
-            idFc={socialProfile.id}
-            idSo={findInSObject('id', type)}
-
-            rssFc={socialProfile.rss}
-            rssSo={findInSObject('rss', type)}
-
-            typeIdFc={socialProfile.typeId}
-            typeIdSo={findInSObject('typeId', type)}
-
-            typeNameFc={socialProfile.typeName}
-            typeNameSo={findInSObject('typeName', type)}
-
-            urlFc={socialProfile.url}
-            urlSo={findInSObject('url', type)}
-
-            usernameFc={socialProfile.username}
-            usernameSo={findInSObject('username', type)}
+            bio={[findInSObject("bio", type), socialProfile.bio]}
+            followers={[findInSObject("followers", type), socialProfile.followers]}
+            following={[findInSObject("following", type), socialProfile.following]}
+            id={[findInSObject("id", type), socialProfile.id]}
+            rss={[findInSObject("rss", type), socialProfile.rss]}
+            // typeId={[findInSObject("typeId", type), socialProfile.typeId]}
+            typeName={[findInSObject("typeName", type), socialProfile.typeName]}
+            url={[findInSObject("url", type), socialProfile.url]}
+            username={[findInSObject("username", type), socialProfile.username]}
           />
         );
-      }
+      // }
     });
     return (
       <div className="socialProfiles">

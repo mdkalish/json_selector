@@ -69,11 +69,11 @@ var JSelector =
 	var fullcontactKeys = ["status", "requestId", "likelihood", "photos", "contactInfo", "demographics", "socialProfiles"];
 
 	// ONLY FOR LOCAL DEVELOPMENT
-	var fullcontactData = __webpack_require__(161);
-	var sObjectData = __webpack_require__(164);
+	var sObjectData = __webpack_require__(161);
+	var fullcontactData = __webpack_require__(164);
 
-	window.fullcontactData = fullcontactData;
 	window.sObjectData = sObjectData;
+	window.fullcontactData = fullcontactData;
 	/// ONLY FOR LOCAL DEVELOPMENT
 
 	function render(domElement, fullcontactData, sObjectData) {
@@ -19722,9 +19722,15 @@ var JSelector =
 	    return _react2.default.createElement(
 	      'div',
 	      null,
+	      _react2.default.createElement(
+	        'h1',
+	        null,
+	        'Diff between states from Fullcontact (Fc) and SalesForce Object (So)'
+	      ),
 	      _react2.default.createElement(_social_profiles2.default, {
 	        fullcontactData: this.props.fullcontactData.socialProfiles,
-	        sObjectData: this.props.sObjectData.socialProfiles }),
+	        sObjectData: this.props.sObjectData.socialProfiles
+	      }),
 	      _react2.default.createElement(
 	        'h1',
 	        null,
@@ -20196,44 +20202,49 @@ var JSelector =
 
 	  render: function render() {
 	    var findInSObject = this.findInSObject;
+	    var sObjectSocialMedia = this.props.sObjectData.map(function (sm) {
+	      return sm.type;
+	    });
 	    var SocialProfileNodes = this.props.fullcontactData.map(function (socialProfile) {
 	      var type = socialProfile.type;
-	      return _react2.default.createElement(_social_profile2.default, {
-	        key: 'socialProfile_' + socialProfile.typeId,
+	      if (sObjectSocialMedia.includes(type)) {
+	        return _react2.default.createElement(_social_profile2.default, {
+	          key: 'socialProfile_' + socialProfile.typeId,
 
-	        bioFc: socialProfile.bio,
-	        bioSo: findInSObject('bio', type),
+	          bioFc: socialProfile.bio,
+	          bioSo: findInSObject('bio', type),
 
-	        followersFc: socialProfile.followers,
-	        followersSo: findInSObject('followers', type),
+	          followersFc: socialProfile.followers,
+	          followersSo: findInSObject('followers', type),
 
-	        followingFc: socialProfile.following,
-	        followingSo: findInSObject('following', type),
+	          followingFc: socialProfile.following,
+	          followingSo: findInSObject('following', type),
 
-	        idFc: socialProfile.id,
-	        idSo: findInSObject('id', type),
+	          idFc: socialProfile.id,
+	          idSo: findInSObject('id', type),
 
-	        rssFc: socialProfile.rss,
-	        rssSo: findInSObject('rss', type),
+	          rssFc: socialProfile.rss,
+	          rssSo: findInSObject('rss', type),
 
-	        typeIdFc: socialProfile.typeId,
-	        typeIdSo: findInSObject('typId', type),
+	          typeIdFc: socialProfile.typeId,
+	          typeIdSo: findInSObject('typeId', type),
 
-	        typeNameFc: socialProfile.typeName,
-	        typeNameSo: findInSObject('typeName', type),
+	          typeNameFc: socialProfile.typeName,
+	          typeNameSo: findInSObject('typeName', type),
 
-	        urlFc: socialProfile.url,
-	        urlSo: findInSObject('url', type),
+	          urlFc: socialProfile.url,
+	          urlSo: findInSObject('url', type),
 
-	        usernameFc: socialProfile.username,
-	        usernameSo: findInSObject('username', type)
-	      });
+	          usernameFc: socialProfile.username,
+	          usernameSo: findInSObject('username', type)
+	        });
+	      }
 	    });
 	    return _react2.default.createElement(
 	      'div',
 	      { className: 'socialProfiles' },
 	      _react2.default.createElement(
-	        'h1',
+	        'h2',
 	        null,
 	        'SocialProfiles'
 	      ),

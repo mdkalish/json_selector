@@ -11,12 +11,14 @@
 
     <!-- ONLY FOR LOCAL DEVELOPMENT -->
     <script>
-      (function(){
-        JSelector.render(document.getElementById('root'), window.fullcontactData, window.sObjectData);
-      })();
+      function jSelect() {
+        JSelector.render(document.getElementById('root'), window.sObjectData, window.fullcontactData);
+      };
+      (function() { jSelect(); })();
     </script>
     <div id="JSelectBtn">
-      <button onclick="JSelector.render(document.getElementById('root'), window.fullcontactData, window.sObjectData)">Go!
+      <button onclick="jSelect()">
+        Show diff
       </button>
     </div>
     <!-- /ONLY FOR LOCAL DEVELOPMENT -->

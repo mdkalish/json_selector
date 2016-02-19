@@ -20,44 +20,47 @@ var SocialProfiles = React.createClass({
 
   render: function() {
     var findInSObject = this.findInSObject;
+    var sObjectSocialMedia = this.props.sObjectData.map(function(sm){ return sm.type })
     var SocialProfileNodes = this.props.fullcontactData.map(function(socialProfile) {
       var type = socialProfile.type
-      return (
-        <SocialProfile
-          key={'socialProfile_' + socialProfile.typeId}
+      if (sObjectSocialMedia.includes(type)) {
+        return (
+          <SocialProfile
+            key={'socialProfile_' + socialProfile.typeId}
 
-          bioFc={socialProfile.bio}
-          bioSo={findInSObject('bio', type)}
+            bioFc={socialProfile.bio}
+            bioSo={findInSObject('bio', type)}
 
-          followersFc={socialProfile.followers}
-          followersSo={findInSObject('followers', type)}
+            followersFc={socialProfile.followers}
+            followersSo={findInSObject('followers', type)}
 
-          followingFc={socialProfile.following}
-          followingSo={findInSObject('following', type)}
+            followingFc={socialProfile.following}
+            followingSo={findInSObject('following', type)}
 
-          idFc={socialProfile.id}
-          idSo={findInSObject('id', type)}
+            idFc={socialProfile.id}
+            idSo={findInSObject('id', type)}
 
-          rssFc={socialProfile.rss}
-          rssSo={findInSObject('rss', type)}
+            rssFc={socialProfile.rss}
+            rssSo={findInSObject('rss', type)}
 
-          typeIdFc={socialProfile.typeId}
-          typeIdSo={findInSObject('typId', type)}
+            typeIdFc={socialProfile.typeId}
+            typeIdSo={findInSObject('typeId', type)}
 
-          typeNameFc={socialProfile.typeName}
-          typeNameSo={findInSObject('typeName', type)}
+            typeNameFc={socialProfile.typeName}
+            typeNameSo={findInSObject('typeName', type)}
 
-          urlFc={socialProfile.url}
-          urlSo={findInSObject('url', type)}
+            urlFc={socialProfile.url}
+            urlSo={findInSObject('url', type)}
 
-          usernameFc={socialProfile.username}
-          usernameSo={findInSObject('username', type)}
-        />
-      );
+            usernameFc={socialProfile.username}
+            usernameSo={findInSObject('username', type)}
+          />
+        );
+      }
     });
     return (
       <div className="socialProfiles">
-        <h1>SocialProfiles</h1>
+        <h2>SocialProfiles</h2>
         {SocialProfileNodes}
       </div>
     );

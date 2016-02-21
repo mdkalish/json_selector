@@ -9,17 +9,11 @@ var SocialProfilePair = React.createClass({
     // console.log('this.props')
     // console.log(this.props)
     return (
-      <div>
-        <table className="socialProfilePair" style={{border: '1px solid black'}}>
-          <tbody>
-            <tr>
-              <td>{this.props.key_part.toUpperCase()}</td>
-              <td style={{"backgroundColor": this.backgroundColor(this.props.value_part[0])}}>{typeof this.props.value_part[0] === "undefined" ? "undefined" : this.props.value_part[0]}</td>
-              <td style={{"backgroundColor": this.backgroundColor(this.props.value_part[1])}}>{typeof this.props.value_part[1] === "undefined" ? "undefined" : this.props.value_part[1]}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <tr>
+        <td>{this.props.key_part.toUpperCase()}</td>
+        <td style={{"backgroundColor": this.backgroundColor(this.props.value_part[0])}}>{typeof this.props.value_part[0] === "undefined" ? "undefined" : this.props.value_part[0]}</td>
+        <td style={{"backgroundColor": this.backgroundColor(this.props.value_part[1])}}>{typeof this.props.value_part[1] === "undefined" ? "undefined" : this.props.value_part[1]}</td>
+      </tr>
     );
   }
 });
@@ -39,12 +33,49 @@ var SocialProfile = React.createClass({
       }
     };
     return (
-      <div>
-        <h3>{this.props.typeName.filter(Boolean)[0]}</h3>
-        {SocialProfileNodes}
-      </div>
+      <table className="socialProfilePair" style={tableStyle}>
+        <tbody>
+          <SocialMediumName typeName={this.props.typeName} />
+          <ColumnHeaders />
+          {SocialProfileNodes}
+        </tbody>
+      </table>
     );
   }
 });
+
+var SocialMediumName = React.createClass({
+  render: function() {
+    return (
+      <th colSpan="3" style={headerStyle}>
+        {this.props.typeName.filter(Boolean)[0]}
+      </th>
+    );
+  }
+});
+
+var ColumnHeaders = React.createClass({
+  render: function() {
+    return (
+      <tr colSpan="3">
+        <th>Key Name</th>
+        <th>sObject Value</th>
+        <th>Fullcontact Value</th>
+      </tr>
+    );
+  }
+});
+
+var tableStyle = {
+  width: '100%',
+  tableLayout: 'fixed',
+  margin: '5px',
+  padding: '5px',
+  border: '1px solid black'
+};
+
+var headerStyle = {
+  backgroundColor: 'rgba(120, 150, 70, 0.5)'
+};
 
 module.exports = SocialProfile;

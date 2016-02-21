@@ -20261,34 +20261,22 @@ var JSelector =
 	    // console.log('this.props')
 	    // console.log(this.props)
 	    return _react2.default.createElement(
-	      "div",
+	      "tr",
 	      null,
 	      _react2.default.createElement(
-	        "table",
-	        { className: "socialProfilePair", style: { border: '1px solid black' } },
-	        _react2.default.createElement(
-	          "tbody",
-	          null,
-	          _react2.default.createElement(
-	            "tr",
-	            null,
-	            _react2.default.createElement(
-	              "td",
-	              null,
-	              this.props.key_part.toUpperCase()
-	            ),
-	            _react2.default.createElement(
-	              "td",
-	              { style: { "backgroundColor": this.backgroundColor(this.props.value_part[0]) } },
-	              typeof this.props.value_part[0] === "undefined" ? "undefined" : this.props.value_part[0]
-	            ),
-	            _react2.default.createElement(
-	              "td",
-	              { style: { "backgroundColor": this.backgroundColor(this.props.value_part[1]) } },
-	              typeof this.props.value_part[1] === "undefined" ? "undefined" : this.props.value_part[1]
-	            )
-	          )
-	        )
+	        "td",
+	        null,
+	        this.props.key_part.toUpperCase()
+	      ),
+	      _react2.default.createElement(
+	        "td",
+	        { style: { "backgroundColor": this.backgroundColor(this.props.value_part[0]) } },
+	        typeof this.props.value_part[0] === "undefined" ? "undefined" : this.props.value_part[0]
+	      ),
+	      _react2.default.createElement(
+	        "td",
+	        { style: { "backgroundColor": this.backgroundColor(this.props.value_part[1]) } },
+	        typeof this.props.value_part[1] === "undefined" ? "undefined" : this.props.value_part[1]
 	      )
 	    );
 	  }
@@ -20309,17 +20297,68 @@ var JSelector =
 	      }
 	    };
 	    return _react2.default.createElement(
-	      "div",
-	      null,
+	      "table",
+	      { className: "socialProfilePair", style: tableStyle },
 	      _react2.default.createElement(
-	        "h3",
+	        "tbody",
 	        null,
-	        this.props.typeName.filter(Boolean)[0]
-	      ),
-	      SocialProfileNodes
+	        _react2.default.createElement(SocialMediumName, { typeName: this.props.typeName }),
+	        _react2.default.createElement(ColumnHeaders, null),
+	        SocialProfileNodes
+	      )
 	    );
 	  }
 	});
+
+	var SocialMediumName = _react2.default.createClass({
+	  displayName: "SocialMediumName",
+
+	  render: function render() {
+	    return _react2.default.createElement(
+	      "th",
+	      { colSpan: "3", style: headerStyle },
+	      this.props.typeName.filter(Boolean)[0]
+	    );
+	  }
+	});
+
+	var ColumnHeaders = _react2.default.createClass({
+	  displayName: "ColumnHeaders",
+
+	  render: function render() {
+	    return _react2.default.createElement(
+	      "tr",
+	      { colSpan: "3" },
+	      _react2.default.createElement(
+	        "th",
+	        null,
+	        "Key Name"
+	      ),
+	      _react2.default.createElement(
+	        "th",
+	        null,
+	        "sObject Value"
+	      ),
+	      _react2.default.createElement(
+	        "th",
+	        null,
+	        "Fullcontact Value"
+	      )
+	    );
+	  }
+	});
+
+	var tableStyle = {
+	  width: '100%',
+	  tableLayout: 'fixed',
+	  margin: '5px',
+	  padding: '5px',
+	  border: '1px solid black'
+	};
+
+	var headerStyle = {
+	  backgroundColor: 'rgba(120, 150, 70, 0.5)'
+	};
 
 	module.exports = SocialProfile;
 

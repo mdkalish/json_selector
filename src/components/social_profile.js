@@ -34,9 +34,11 @@ var SocialProfile = React.createClass({
     };
     return (
       <table className="socialProfilePair" style={tableStyle}>
-        <tbody>
+        <thead>
           <SocialMediumName typeName={this.props.typeName} />
           <ColumnHeaders />
+        </thead>
+        <tbody>
           {SocialProfileNodes}
         </tbody>
       </table>
@@ -47,9 +49,11 @@ var SocialProfile = React.createClass({
 var SocialMediumName = React.createClass({
   render: function() {
     return (
-      <th colSpan="3" style={headerStyle}>
-        {this.props.typeName.filter(Boolean)[0]}
-      </th>
+      <tr>
+        <th colSpan="3" style={headerStyle}>
+          {this.props.typeName.filter(Boolean)[0]}
+        </th>
+      </tr>
     );
   }
 });
@@ -71,7 +75,8 @@ var tableStyle = {
   tableLayout: 'fixed',
   margin: '5px',
   padding: '5px',
-  border: '1px solid black'
+  border: '1px solid black',
+  textAlign: 'center'
 };
 
 var headerStyle = {

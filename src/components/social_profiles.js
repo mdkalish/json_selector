@@ -1,5 +1,5 @@
 import React from "react";
-import SocialProfile from "./social_profile.js";
+import SocialProfileRows from "./social_profile.js";
 
 var SocialProfiles = React.createClass({
   getInitialState: function() {
@@ -25,7 +25,7 @@ var SocialProfiles = React.createClass({
       var type = socialProfile.type
       // if (sObjectSocialMedia.includes(type)) {
         return (
-          <SocialProfile
+          <SocialProfileRows
             key={"socialProfile_" + socialProfile.typeId}
 
             bio={[findInSObject("bio", type), socialProfile.bio]}

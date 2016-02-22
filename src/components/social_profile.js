@@ -1,6 +1,6 @@
 import React from 'react';
 
-var SocialProfilePair = React.createClass({
+var SocialProfilePairRow = React.createClass({
   backgroundColor: function(value) {
     if (typeof value === "undefined") { return "grey" }
   },
@@ -18,14 +18,15 @@ var SocialProfilePair = React.createClass({
   }
 });
 
-var SocialProfile = React.createClass({
+var SocialProfileRows = React.createClass({
   render: function() {
     var SocialProfileNodes = [];
     for (var key in this.props) {
       if (this.props.hasOwnProperty(key) && this.props[key][0] !== this.props[key][1] && key !== "typeName") {
         SocialProfileNodes.push(
-          <SocialProfilePair
+          <SocialProfilePairRow
             key={'socialProfilePair_' + key + this.props[key]}
+            type={this.props.typeName}
             key_part={key}
             value_part={this.props[key]}
           />
@@ -35,8 +36,8 @@ var SocialProfile = React.createClass({
     return (
       <table className="socialProfilePair" style={tableStyle}>
         <thead>
-          <SocialMediumName typeName={this.props.typeName} />
-          <ColumnHeaders />
+          <SocialMediumNameRow typeName={this.props.typeName} />
+          <ColumnHeadersRow />
         </thead>
         <tbody>
           {SocialProfileNodes}
@@ -46,7 +47,7 @@ var SocialProfile = React.createClass({
   }
 });
 
-var SocialMediumName = React.createClass({
+var SocialMediumNameRow = React.createClass({
   render: function() {
     return (
       <tr>
@@ -58,7 +59,7 @@ var SocialMediumName = React.createClass({
   }
 });
 
-var ColumnHeaders = React.createClass({
+var ColumnHeadersRow = React.createClass({
   render: function() {
     return (
       <tr colSpan="3">
@@ -71,7 +72,7 @@ var ColumnHeaders = React.createClass({
 });
 
 var tableStyle = {
-  width: '100%',
+  width: '90%',
   tableLayout: 'fixed',
   margin: '5px',
   padding: '5px',
@@ -83,4 +84,4 @@ var headerStyle = {
   backgroundColor: 'rgba(120, 150, 70, 0.5)'
 };
 
-module.exports = SocialProfile;
+module.exports = SocialProfileRows;

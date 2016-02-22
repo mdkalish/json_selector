@@ -2,8 +2,10 @@ import React, { Component } from 'react';
 import Item from './components/item.js'
 import SocialProfiles from './components/social_profiles.js'
 
-// export default class App extends Component {
 var App = React.createClass({
+  getInitialState: function() {
+    return {updateJson: {}}
+  },
   render: function() {
     return (
       <div>
@@ -20,4 +22,3 @@ var App = React.createClass({
 });
 
 module.exports = App;
-// }

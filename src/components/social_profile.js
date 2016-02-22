@@ -1,24 +1,55 @@
 import React from 'react';
 
 var SocialProfilePairRow = React.createClass({
-  backgroundColor: function(value) {
-    if (typeof value === "undefined") { return "grey" }
+  getInitialState: function() {
+    return { picked: (this.props.picked || false) }
   },
-
-  render: function() {
-    // console.log('this.props')
-    // console.log(this.props)
+  componentWillReceiveProps: function(nextProps) {
+    this.setState({picked: nextProps.picked})
+  },
+  backgroundColor: function(value) {
+    if (typeof value === "undefined") {
+      return { backgroundColor: "#e0e4cc" }
+    }
+  },
+  rowStyle: function() {
+    var style;
+    this.state.picked ?
+      style = { backgroundColor: "#69d2e7" } :
+      style = { backgroundColor: "#fff" }
+    return style;
+  },
+  valueText: function(v) {
     return (
-      <tr>
+      typeof v === "undefined" ? "undefined" : v
+    );
+  },
+  updatePicked: function() {
+    this.setState({picked: !this.state.picked});
+  },
+  render: function() {
+    var vp0 = this.props.value_part[0]
+    var vp1 = this.props.value_part[1]
+    return (
+      <tr style={this.rowStyle()}>
         <td>{this.props.key_part.toUpperCase()}</td>
-        <td style={{"backgroundColor": this.backgroundColor(this.props.value_part[0])}}>{typeof this.props.value_part[0] === "undefined" ? "undefined" : this.props.value_part[0]}</td>
-        <td style={{"backgroundColor": this.backgroundColor(this.props.value_part[1])}}>{typeof this.props.value_part[1] === "undefined" ? "undefined" : this.props.value_part[1]}</td>
+        <td style={this.backgroundColor(vp0)}>{this.valueText(vp0)}</td>
+        <td style={this.backgroundColor(vp1)}>{this.valueText(vp1)}</td>
+        <td>
+          <input type="checkbox" checked={this.state.picked} onChange={this.updatePicked} />
+        </td>
       </tr>
     );
   }
 });
 
 var SocialProfileRows = React.createClass({
+  getInitialState: function() {
+    return {picked: false}
+  },
+  updatePicked: function(picked) {
+    this.setState(picked);
+  },
   render: function() {
     var SocialProfileNodes = [];
     for (var key in this.props) {
@@ -27,6 +58,7 @@ var SocialProfileRows = React.createClass({
           <SocialProfilePairRow
             key={'socialProfilePair_' + key + this.props[key]}
             type={this.props.typeName}
+            picked={this.state.picked}
             key_part={key}
             value_part={this.props[key]}
           />
@@ -37,7 +69,7 @@ var SocialProfileRows = React.createClass({
       <table className="socialProfilePair" style={tableStyle}>
         <thead>
           <SocialMediumNameRow typeName={this.props.typeName} />
-          <ColumnHeadersRow />
+          <ColumnHeadersRow updatePicked={this.updatePicked} />
         </thead>
         <tbody>
           {SocialProfileNodes}
@@ -50,8 +82,8 @@ var SocialProfileRows = React.createClass({
 var SocialMediumNameRow = React.createClass({
   render: function() {
     return (
-      <tr>
-        <th colSpan="3" style={headerStyle}>
+      <tr style={{backgroundColor: '#fa6900'}}>
+        <th colSpan="4">
           {this.props.typeName.filter(Boolean)[0]}
         </th>
       </tr>
@@ -60,12 +92,25 @@ var SocialMediumNameRow = React.createClass({
 });
 
 var ColumnHeadersRow = React.createClass({
+  getInitialState: function() {
+    return {picked: false}
+  },
+  updatePicked: function() {
+    var picked = {picked: !this.state.picked}
+    this.setState(picked)
+    this.props.updatePicked(picked)
+  },
   render: function() {
+    var k = Math.random()
     return (
-      <tr colSpan="3">
+      <tr colSpan="4" style={{backgroundColor: '#f38630'}}>
         <th>Key Name</th>
         <th>sObject Value</th>
         <th>Fullcontact Value</th>
+        <th>
+          <label htmlFor={"updateAll_" + k}>Update sObject?</label>
+          <input type="checkbox" checked={this.state.picked} onChange={this.updatePicked} id={"updateAll_" + k} />
+        </th>
       </tr>
     );
   }
@@ -81,7 +126,8 @@ var tableStyle = {
 };
 
 var headerStyle = {
-  backgroundColor: 'rgba(120, 150, 70, 0.5)'
+  backgroundColor: '#f38630'
+  // backgroundColor: 'rgba(243, 134, 48, 0.5)' // #F38630
 };
 
 module.exports = SocialProfileRows;

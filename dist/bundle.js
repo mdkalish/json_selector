@@ -19714,10 +19714,12 @@ var JSelector =
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	// export default class App extends Component {
 	var App = _react2.default.createClass({
 	  displayName: 'App',
 
+	  getInitialState: function getInitialState() {
+	    return { updateJson: {} };
+	  },
 	  render: function render() {
 	    return _react2.default.createElement(
 	      'div',
@@ -19742,7 +19744,6 @@ var JSelector =
 	});
 
 	module.exports = App;
-	// }
 
 /***/ },
 /* 160 */
@@ -20248,21 +20249,37 @@ var JSelector =
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	var SocialProfilePair = _react2.default.createClass({
-	  displayName: "SocialProfilePair",
+	var SocialProfilePairRow = _react2.default.createClass({
+	  displayName: "SocialProfilePairRow",
 
+	  getInitialState: function getInitialState() {
+	    return { picked: this.props.picked || false };
+	  },
+	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+	    this.setState({ picked: nextProps.picked });
+	  },
 	  backgroundColor: function backgroundColor(value) {
 	    if (typeof value === "undefined") {
-	      return "grey";
+	      return { backgroundColor: "#e0e4cc" };
 	    }
 	  },
-
+	  rowStyle: function rowStyle() {
+	    var style;
+	    this.state.picked ? style = { backgroundColor: "#69d2e7" } : style = { backgroundColor: "#fff" };
+	    return style;
+	  },
+	  valueText: function valueText(v) {
+	    return typeof v === "undefined" ? "undefined" : v;
+	  },
+	  updatePicked: function updatePicked() {
+	    this.setState({ picked: !this.state.picked });
+	  },
 	  render: function render() {
-	    // console.log('this.props')
-	    // console.log(this.props)
+	    var vp0 = this.props.value_part[0];
+	    var vp1 = this.props.value_part[1];
 	    return _react2.default.createElement(
 	      "tr",
-	      null,
+	      { style: this.rowStyle() },
 	      _react2.default.createElement(
 	        "td",
 	        null,
@@ -20270,27 +20287,40 @@ var JSelector =
 	      ),
 	      _react2.default.createElement(
 	        "td",
-	        { style: { "backgroundColor": this.backgroundColor(this.props.value_part[0]) } },
-	        typeof this.props.value_part[0] === "undefined" ? "undefined" : this.props.value_part[0]
+	        { style: this.backgroundColor(vp0) },
+	        this.valueText(vp0)
 	      ),
 	      _react2.default.createElement(
 	        "td",
-	        { style: { "backgroundColor": this.backgroundColor(this.props.value_part[1]) } },
-	        typeof this.props.value_part[1] === "undefined" ? "undefined" : this.props.value_part[1]
+	        { style: this.backgroundColor(vp1) },
+	        this.valueText(vp1)
+	      ),
+	      _react2.default.createElement(
+	        "td",
+	        null,
+	        _react2.default.createElement("input", { type: "checkbox", checked: this.state.picked, onChange: this.updatePicked })
 	      )
 	    );
 	  }
 	});
 
-	var SocialProfile = _react2.default.createClass({
-	  displayName: "SocialProfile",
+	var SocialProfileRows = _react2.default.createClass({
+	  displayName: "SocialProfileRows",
 
+	  getInitialState: function getInitialState() {
+	    return { picked: false };
+	  },
+	  updatePicked: function updatePicked(picked) {
+	    this.setState(picked);
+	  },
 	  render: function render() {
 	    var SocialProfileNodes = [];
 	    for (var key in this.props) {
 	      if (this.props.hasOwnProperty(key) && this.props[key][0] !== this.props[key][1] && key !== "typeName") {
-	        SocialProfileNodes.push(_react2.default.createElement(SocialProfilePair, {
+	        SocialProfileNodes.push(_react2.default.createElement(SocialProfilePairRow, {
 	          key: 'socialProfilePair_' + key + this.props[key],
+	          type: this.props.typeName,
+	          picked: this.state.picked,
 	          key_part: key,
 	          value_part: this.props[key]
 	        }));
@@ -20302,8 +20332,8 @@ var JSelector =
 	      _react2.default.createElement(
 	        "thead",
 	        null,
-	        _react2.default.createElement(SocialMediumName, { typeName: this.props.typeName }),
-	        _react2.default.createElement(ColumnHeaders, null)
+	        _react2.default.createElement(SocialMediumNameRow, { typeName: this.props.typeName }),
+	        _react2.default.createElement(ColumnHeadersRow, { updatePicked: this.updatePicked })
 	      ),
 	      _react2.default.createElement(
 	        "tbody",
@@ -20314,29 +20344,38 @@ var JSelector =
 	  }
 	});
 
-	var SocialMediumName = _react2.default.createClass({
-	  displayName: "SocialMediumName",
+	var SocialMediumNameRow = _react2.default.createClass({
+	  displayName: "SocialMediumNameRow",
 
 	  render: function render() {
 	    return _react2.default.createElement(
 	      "tr",
-	      null,
+	      { style: { backgroundColor: '#fa6900' } },
 	      _react2.default.createElement(
 	        "th",
-	        { colSpan: "3", style: headerStyle },
+	        { colSpan: "4" },
 	        this.props.typeName.filter(Boolean)[0]
 	      )
 	    );
 	  }
 	});
 
-	var ColumnHeaders = _react2.default.createClass({
-	  displayName: "ColumnHeaders",
+	var ColumnHeadersRow = _react2.default.createClass({
+	  displayName: "ColumnHeadersRow",
 
+	  getInitialState: function getInitialState() {
+	    return { picked: false };
+	  },
+	  updatePicked: function updatePicked() {
+	    var picked = { picked: !this.state.picked };
+	    this.setState(picked);
+	    this.props.updatePicked(picked);
+	  },
 	  render: function render() {
+	    var k = Math.random();
 	    return _react2.default.createElement(
 	      "tr",
-	      { colSpan: "3" },
+	      { colSpan: "4", style: { backgroundColor: '#f38630' } },
 	      _react2.default.createElement(
 	        "th",
 	        null,
@@ -20351,13 +20390,23 @@ var JSelector =
 	        "th",
 	        null,
 	        "Fullcontact Value"
+	      ),
+	      _react2.default.createElement(
+	        "th",
+	        null,
+	        _react2.default.createElement(
+	          "label",
+	          { htmlFor: "updateAll_" + k },
+	          "Update sObject?"
+	        ),
+	        _react2.default.createElement("input", { type: "checkbox", checked: this.state.picked, onChange: this.updatePicked, id: "updateAll_" + k })
 	      )
 	    );
 	  }
 	});
 
 	var tableStyle = {
-	  width: '100%',
+	  width: '90%',
 	  tableLayout: 'fixed',
 	  margin: '5px',
 	  padding: '5px',
@@ -20366,10 +20415,11 @@ var JSelector =
 	};
 
 	var headerStyle = {
-	  backgroundColor: 'rgba(120, 150, 70, 0.5)'
+	  backgroundColor: '#f38630'
+	  // backgroundColor: 'rgba(243, 134, 48, 0.5)' // #F38630
 	};
 
-	module.exports = SocialProfile;
+	module.exports = SocialProfileRows;
 
 /***/ },
 /* 164 */

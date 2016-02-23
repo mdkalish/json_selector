@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import Item from './components/item.js'
 import SocialProfiles from './components/social_profiles.js'
 
 var App = React.createClass({
@@ -18,8 +17,6 @@ var App = React.createClass({
           sObjectData={this.props.sObjectData.socialProfiles}
           onChange={this.props.onChange}
         />
-        <h1>Item</h1>
-        <Item />
       </div>
     );
   }

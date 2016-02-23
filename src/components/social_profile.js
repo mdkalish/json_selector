@@ -1,53 +1,6 @@
 import React from 'react';
-
-var SocialProfilePairRow = React.createClass({
-  getInitialState: function() {
-    return { picked: false }
-  },
-  componentWillReceiveProps: function(nextProps) {
-    this.setState({picked: nextProps.picked});
-  },
-  componentWillUpdate: function(nextProps, nextState) {
-    var props = Object.create({writeable: true});
-    var valuePart = {valuePart: this.props.valuePart[1]};
-    Object.assign(props, this.props, valuePart, nextState);
-    this.props.onChange(props);
-  },
-  backgroundColor: function(value) {
-    if (typeof value === "undefined") {
-      return { backgroundColor: "#e0e4cc" }
-    }
-  },
-  rowStyle: function() {
-    var style;
-    this.state.picked ?
-      style = { backgroundColor: "#69d2e7" } :
-      style = { backgroundColor: "#fff" }
-    return style;
-  },
-  valueText: function(v) {
-    return (
-      typeof v === "undefined" ? "undefined" : v
-    );
-  },
-  updatePicked: function() {
-    this.setState({picked: !this.state.picked});
-  },
-  render: function() {
-    var vp0 = this.props.valuePart[0]
-    var vp1 = this.props.valuePart[1]
-    return (
-      <tr style={this.rowStyle()}>
-        <td>{this.props.keyPart.toUpperCase()}</td>
-        <td style={this.backgroundColor(vp0)}>{this.valueText(vp0)}</td>
-        <td style={this.backgroundColor(vp1)}>{this.valueText(vp1)}</td>
-        <td>
-          <input type="checkbox" checked={this.state.picked} onChange={this.updatePicked} />
-        </td>
-      </tr>
-    );
-  }
-});
+import SocialProfilePairRow from './social_profile_pair.js';
+import {SocialMediumHeaderRow, ColumnHeadersRow} from "./table_headers.js"
 
 var SocialProfileRows = React.createClass({
   getInitialState: function() {
@@ -81,50 +34,13 @@ var SocialProfileRows = React.createClass({
     return (
       <table className="socialProfilePair" style={tableStyle}>
         <thead>
-          <SocialMediumNameRow type={this.getType()} />
+          <SocialMediumHeaderRow type={this.getType()} />
           <ColumnHeadersRow updatePicked={this.updatePicked} />
         </thead>
         <tbody>
           {SocialProfileNodes}
         </tbody>
       </table>
-    );
-  }
-});
-
-var SocialMediumNameRow = React.createClass({
-  render: function() {
-    return (
-      <tr style={{backgroundColor: '#fa6900'}}>
-        <th colSpan="4">
-          {this.props.type}
-        </th>
-      </tr>
-    );
-  }
-});
-
-var ColumnHeadersRow = React.createClass({
-  getInitialState: function() {
-    return {picked: false}
-  },
-  updatePicked: function() {
-    var picked = {picked: !this.state.picked}
-    this.setState(picked)
-    this.props.updatePicked(picked)
-  },
-  render: function() {
-    var k = Math.random()
-    return (
-      <tr colSpan="4" style={{backgroundColor: '#f38630'}}>
-        <th>Key Name</th>
-        <th>sObject Value</th>
-        <th>Fullcontact Value</th>
-        <th>
-          <label htmlFor={"updateAll_" + k}>Update sObject?</label>
-          <input type="checkbox" checked={this.state.picked} onChange={this.updatePicked} id={"updateAll_" + k} />
-        </th>
-      </tr>
     );
   }
 });

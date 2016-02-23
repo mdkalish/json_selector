@@ -2,13 +2,9 @@ import React from "react";
 import SocialProfileRows from "./social_profile.js";
 
 var SocialProfiles = React.createClass({
-  getInitialState: function() {
-    return {
-      fullcontactData: [],
-      sObjectData: []
-    };
+  componentDidMount: function() {
+    window.updateJson.socialMedia = {};
   },
-
   findInSObject: function(key, type) {
     for (var socialMedium of this.props.sObjectData) {
       if (socialMedium.type === type) {
@@ -17,7 +13,6 @@ var SocialProfiles = React.createClass({
     }
     return sOValue;
   },
-
   render: function() {
     var findInSObject = this.findInSObject;
     // var sObjectSocialMedia = this.props.sObjectData.map(function(sm){ return sm.type })

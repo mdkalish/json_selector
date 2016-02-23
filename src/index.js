@@ -11,23 +11,12 @@ const fullcontactData = require('json!./../narzedzia/fullcontact_mk.json')
 window.sObjectData = sObjectData;
 window.fullcontactData = fullcontactData;
 /// ONLY FOR LOCAL DEVELOPMENT
+window.updateJson = {};
 
 export function render(domElement, fullcontactData, sObjectData) {
-  /*
-  console.log('fullcontactData')
-  console.log(fullcontactData)
-  console.log('fullcontactData.socialProfiles')
-  console.log(fullcontactData.socialProfiles)
-  console.log('sObjectData')
-  console.log(sObjectData)
-  console.log('sObjectData.socialProfiles')
-  console.log(sObjectData.socialProfiles)
-  console.log(fullcontactKeys)
-  */
-
   ReactDOM.render(
-    <App fullcontactData={fullcontactData}
-         sObjectData={sObjectData} />,
+    <App fullcontactData={fullcontactData} sObjectData={sObjectData} />,
     domElement
   )
+  // return {res: App.props}
 };

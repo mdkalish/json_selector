@@ -6,6 +6,13 @@ var SocialProfilePairRow = React.createClass({
   },
   componentWillReceiveProps: function(nextProps) {
     this.setState({picked: nextProps.picked})
+    // for (var prop of Object.keys(this.props)) {
+      // console.log('this.getType()')
+      // console.log(prop)
+      console.log(this.props)
+      window.updateJson.socialMedia[this.props.type] = {}
+      window.updateJson.socialMedia[this.props.type][this.props.key_part] = this.props.value_part[1]
+    // }
   },
   backgroundColor: function(value) {
     if (typeof value === "undefined") {
@@ -50,6 +57,9 @@ var SocialProfileRows = React.createClass({
   updatePicked: function(picked) {
     this.setState(picked);
   },
+  getType: function() {
+    return this.props.typeName.filter(Boolean)[0]
+  },
   render: function() {
     var SocialProfileNodes = [];
     for (var key in this.props) {
@@ -57,7 +67,7 @@ var SocialProfileRows = React.createClass({
         SocialProfileNodes.push(
           <SocialProfilePairRow
             key={'socialProfilePair_' + key + this.props[key]}
-            type={this.props.typeName}
+            type={this.getType()}
             picked={this.state.picked}
             key_part={key}
             value_part={this.props[key]}
@@ -68,7 +78,7 @@ var SocialProfileRows = React.createClass({
     return (
       <table className="socialProfilePair" style={tableStyle}>
         <thead>
-          <SocialMediumNameRow typeName={this.props.typeName} />
+          <SocialMediumNameRow type={this.getType()} />
           <ColumnHeadersRow updatePicked={this.updatePicked} />
         </thead>
         <tbody>
@@ -84,7 +94,7 @@ var SocialMediumNameRow = React.createClass({
     return (
       <tr style={{backgroundColor: '#fa6900'}}>
         <th colSpan="4">
-          {this.props.typeName.filter(Boolean)[0]}
+          {this.props.type}
         </th>
       </tr>
     );
@@ -119,15 +129,10 @@ var ColumnHeadersRow = React.createClass({
 var tableStyle = {
   width: '90%',
   tableLayout: 'fixed',
-  margin: '5px',
+  margin: '10px',
   padding: '5px',
   border: '1px solid black',
   textAlign: 'center'
-};
-
-var headerStyle = {
-  backgroundColor: '#f38630'
-  // backgroundColor: 'rgba(243, 134, 48, 0.5)' // #F38630
 };
 
 module.exports = SocialProfileRows;

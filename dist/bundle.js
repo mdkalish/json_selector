@@ -77,10 +77,10 @@ var JSelector =
 	/// ONLY FOR LOCAL DEVELOPMENT
 	window.updateJson = {};
 
-	function render(domElement, fullcontactData, sObjectData, callback) {
+	function render(domElement, sObjectData, fullcontactData, callback) {
 	  _reactDom2.default.render(_react2.default.createElement(_App2.default, {
-	    fullcontactData: fullcontactData,
 	    sObjectData: sObjectData,
+	    fullcontactData: fullcontactData,
 	    onChange: callback
 	  }), domElement);
 	};

@@ -13,11 +13,11 @@ window.fullcontactData = fullcontactData;
 /// ONLY FOR LOCAL DEVELOPMENT
 window.updateJson = {};
 
-export function render(domElement, fullcontactData, sObjectData, callback) {
+export function render(domElement, sObjectData, fullcontactData, callback) {
   ReactDOM.render(
     <App
-      fullcontactData={fullcontactData}
       sObjectData={sObjectData}
+      fullcontactData={fullcontactData}
       onChange={callback}
     />,
     domElement

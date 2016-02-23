@@ -16,6 +16,7 @@ var App = React.createClass({
         <SocialProfiles
           fullcontactData={this.props.fullcontactData.socialProfiles}
           sObjectData={this.props.sObjectData.socialProfiles}
+          onChange={this.props.onChange}
         />
         <h1>Item</h1>
         <Item />

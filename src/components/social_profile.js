@@ -5,14 +5,8 @@ var SocialProfilePairRow = React.createClass({
     return { picked: (this.props.picked || false) }
   },
   componentWillReceiveProps: function(nextProps) {
-    this.setState({picked: nextProps.picked})
-    // for (var prop of Object.keys(this.props)) {
-      // console.log('this.getType()')
-      // console.log(prop)
-      console.log(this.props)
-      window.updateJson.socialMedia[this.props.type] = {}
-      window.updateJson.socialMedia[this.props.type][this.props.key_part] = this.props.value_part[1]
-    // }
+    this.setState({picked: nextProps.picked});
+    this.props.onChange(nextProps)
   },
   backgroundColor: function(value) {
     if (typeof value === "undefined") {
@@ -63,16 +57,20 @@ var SocialProfileRows = React.createClass({
   render: function() {
     var SocialProfileNodes = [];
     for (var key in this.props) {
-      if (this.props.hasOwnProperty(key) && this.props[key][0] !== this.props[key][1] && key !== "typeName") {
-        SocialProfileNodes.push(
-          <SocialProfilePairRow
-            key={'socialProfilePair_' + key + this.props[key]}
-            type={this.getType()}
-            picked={this.state.picked}
-            key_part={key}
-            value_part={this.props[key]}
-          />
-        )
+      if (this.props.hasOwnProperty(key) &&  key !== "onChange" && key !== "typeName") {
+        if (this.props[key][0] !== this.props[key][1]) {
+          SocialProfileNodes.push(
+            <SocialProfilePairRow
+              onChange={this.props.onChange}
+              key={'socialProfilePair_' + key + this.props[key]}
+
+              type={this.getType()}
+              picked={this.state.picked}
+              key_part={key}
+              value_part={this.props[key]}
+            />
+          )
+        }
       }
     };
     return (

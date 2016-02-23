@@ -11,8 +11,12 @@
 
     <!-- ONLY FOR LOCAL DEVELOPMENT -->
     <script>
+      function onChange(newData) {
+        console.log('newData');
+        console.log(newData);
+      };
       function jSelect() {
-        JSelector.render(document.getElementById('root'), window.sObjectData, window.fullcontactData);
+        JSelector.render(document.getElementById('root'), window.sObjectData, window.fullcontactData, onChange);
       };
       (function() { jSelect(); })();
     </script>

@@ -9,8 +9,8 @@ var SocialProfilePairRow = React.createClass({
   },
   componentWillUpdate: function(nextProps, nextState) {
     var props = Object.create({writeable: true});
-    var value_part = {value_part: this.props.value_part[1]}
-    Object.assign(props, this.props, value_part, nextState)
+    var valuePart = {valuePart: this.props.valuePart[1]};
+    Object.assign(props, this.props, valuePart, nextState);
     this.props.onChange(props);
   },
   backgroundColor: function(value) {
@@ -34,11 +34,11 @@ var SocialProfilePairRow = React.createClass({
     this.setState({picked: !this.state.picked});
   },
   render: function() {
-    var vp0 = this.props.value_part[0]
-    var vp1 = this.props.value_part[1]
+    var vp0 = this.props.valuePart[0]
+    var vp1 = this.props.valuePart[1]
     return (
       <tr style={this.rowStyle()}>
-        <td>{this.props.key_part.toUpperCase()}</td>
+        <td>{this.props.keyPart.toUpperCase()}</td>
         <td style={this.backgroundColor(vp0)}>{this.valueText(vp0)}</td>
         <td style={this.backgroundColor(vp1)}>{this.valueText(vp1)}</td>
         <td>
@@ -71,8 +71,8 @@ var SocialProfileRows = React.createClass({
 
               type={this.getType()}
               picked={this.state.picked}
-              key_part={key}
-              value_part={this.props[key]}
+              keyPart={key}
+              valuePart={this.props[key]}
             />
           )
         }

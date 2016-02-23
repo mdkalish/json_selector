@@ -19705,12 +19705,6 @@ var JSelector =
 	var App = _react2.default.createClass({
 	  displayName: 'App',
 
-	  getInitialState: function getInitialState() {
-	    return { updateJson: {} };
-	  },
-	  getState: function getState() {
-	    return this.state;
-	  },
 	  render: function render() {
 	    return _react2.default.createElement(
 	      'div',
@@ -19718,13 +19712,17 @@ var JSelector =
 	      _react2.default.createElement(
 	        'h1',
 	        null,
-	        'Diff between states from Fullcontact (Fc) and SalesForce Object (So)'
+	        'Diff Tables'
 	      ),
-	      _react2.default.createElement(_social_profiles2.default, {
-	        fullcontactData: this.props.fullcontactData.socialProfiles,
-	        sObjectData: this.props.sObjectData.socialProfiles,
-	        onChange: this.props.onChange
-	      })
+	      _react2.default.createElement(
+	        'div',
+	        { className: 'socialProfiles' },
+	        _react2.default.createElement(_social_profiles2.default, {
+	          fullcontactData: this.props.fullcontactData.socialProfiles,
+	          sObjectData: this.props.sObjectData.socialProfiles,
+	          onChange: this.props.onChange
+	        })
+	      )
 	    );
 	  }
 	});
@@ -19915,10 +19913,11 @@ var JSelector =
 	    this.setState({ picked: nextProps.picked });
 	  },
 	  componentWillUpdate: function componentWillUpdate(nextProps, nextState) {
-	    var props = Object.create({ writeable: true });
-	    var valuePart = { valuePart: this.props.valuePart[1] };
-	    Object.assign(props, this.props, valuePart, nextState);
-	    this.props.onChange(props);
+	    var updateJson = Object.create({ writeable: true });
+	    var sObjectData = { sObjectValue: this.props.valuePart[0] };
+	    var fullContactData = { fullContactValue: this.props.valuePart[1] };
+	    Object.assign(updateJson, this.props, sObjectData, fullContactData, nextState);
+	    this.props.onChange(updateJson);
 	  },
 	  backgroundColor: function backgroundColor(value) {
 	    if (typeof value === "undefined") {

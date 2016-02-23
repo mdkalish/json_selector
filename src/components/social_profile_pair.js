@@ -8,10 +8,11 @@ var SocialProfilePairRow = React.createClass({
     this.setState({picked: nextProps.picked});
   },
   componentWillUpdate: function(nextProps, nextState) {
-    var props = Object.create({writeable: true});
-    var valuePart = {valuePart: this.props.valuePart[1]};
-    Object.assign(props, this.props, valuePart, nextState);
-    this.props.onChange(props);
+    var updateJson = Object.create({writeable: true});
+    var sObjectData = {sObjectValue: this.props.valuePart[0]};
+    var fullContactData = {fullContactValue: this.props.valuePart[1]};
+    Object.assign(updateJson, this.props, sObjectData, fullContactData, nextState);
+    this.props.onChange(updateJson);
   },
   backgroundColor: function(value) {
     if (typeof value === "undefined") {

@@ -2,11 +2,16 @@ import React from 'react';
 
 var SocialProfilePairRow = React.createClass({
   getInitialState: function() {
-    return { picked: (this.props.picked || false) }
+    return { picked: false }
   },
   componentWillReceiveProps: function(nextProps) {
     this.setState({picked: nextProps.picked});
-    this.props.onChange(nextProps)
+  },
+  componentWillUpdate: function(nextProps, nextState) {
+    var props = Object.create({writeable: true});
+    var value_part = {value_part: this.props.value_part[1]}
+    Object.assign(props, this.props, value_part, nextState)
+    this.props.onChange(props);
   },
   backgroundColor: function(value) {
     if (typeof value === "undefined") {

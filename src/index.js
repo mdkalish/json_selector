@@ -22,5 +22,4 @@ export function render(domElement, fullcontactData, sObjectData, callback) {
     />,
     domElement
   )
-  // return {res: App.props}
 };

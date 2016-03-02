@@ -1,0 +1,118 @@
+<apex:page standardController="Contact" standardStylesheets="false" showHeader="false">
+  <apex:remoteObjects jsNamespace="RemoteObjectModel">
+    <apex:remoteObjectModel name="Contact" fields="Id">
+      <apex:remoteObjectField name="Social_Profiles__c" rendered="false"></apex:remoteObjectField>
+    </apex:remoteObjectModel>
+  </apex:RemoteObjects>
+  <html>
+    <head>
+      <meta charset="UTF-8"/>
+      <script src="/soap/ajax/36.0/connection.js"></script>
+      <script type="text/javascript">
+        var fullcontact = {
+          fetch: function () {
+            return new Promise(function(resolve, reject) {
+              var apiKey = process.env.FULLCONTACT_API_KEY; // give your key here
+              var url = "https://api.fullcontact.com/v2/person.json?email={!Contact.Email}&apiKey=" + apiKey;
+              var xmlhttp = new XMLHttpRequest();
+              xmlhttp.onreadystatechange = function () {
+                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                  window.fullcontactData = JSON.parse(xmlhttp.responseText);
+                  window.socialProfiles = window.fullcontactData.socialProfiles;
+                  console.log("fetch: Successfully fetched Social Profiles from FullContact");
+                  resolve();
+                } else {
+                  reject(console.error(xmlhttp.statusText));
+                }
+              };
+              xmlhttp.open("GET", url, true);
+              xmlhttp.send();
+            });
+          },
+          persist: function () {
+            this.fetch(function() {
+              var contact = new sforce.SObject("Contact");
+              contact.Id = '{!Contact.Id}';
+              contact.Social_Profiles__c = JSON.stringify(window.socialProfiles);
+              result = sforce.connection.update([contact]);
+              if (result[0].getBoolean("success")) {
+                console.log("persist: Successfully persisted FullContact data to sObject");
+                // alert("Successfully saved FullContact info, please reload the page.");
+              } else {
+                console.error("persist: Error persisting FullContact data to sObject: ");
+                console.log(result);
+              };
+            });
+          }
+        };
+
+        var remoteObject = {
+          loadSocialProfiles: function (callback) {
+            var rom = new RemoteObjectModel.Contact();
+            rom.retrieve({where: {Id: {eq: '{!Contact.Id}'}}}, function(err, res, e) {
+              var socialProfiles = res[0].get("Social_Profiles__c");
+              if (socialProfiles) {
+                document.getElementById("socialProfiles").innerHTML = socialProfiles;
+                window.socialProfiles = JSON.parse(document.getElementById("socialProfiles").innerHTML);
+                console.log("loadSocialProfiles: Successfully loaded Social Profiles from sObject");
+              } else {
+                fullcontact.persist();
+              }
+              if (typeof callback === "function") { callback() };
+            });
+          }
+        };
+
+        (function () {
+          if (typeof remoteObject.loadSocialProfiles === "function") {
+            remoteObject.loadSocialProfiles(function() {
+              var cntc = new sforce.SObject("Contact");
+              cntc.Id = '{!Contact.Id}';
+              var socialProfiles = JSON.parse('{!Contact.Social_Profiles__c}');
+              var customFields = {
+                facebook_url: '{!Contact.Facebook_URL__c}',
+                github_url: '{!Contact.GitHub_URL__c}',
+                linkedin_url: '{!Contact.LinkedIn_URL__c}',
+                twitter_url: '{!Contact.Twitter_URL__c}',
+                twitter_followers: '{!Contact.Twitter_Followers__c}'
+              };
+              var shouldUpdate = false;
+
+              for (var cf in customFields) {
+                if (!customFields[cf]) {
+                  var name = cf.split('_')[0];
+                  var refinement = cf.split('_')[1];
+                  var cfValue = socialProfiles.map(function(sp) {
+                    if (sp.type.toLowerCase() === name && sp[refinement]) {
+                      shouldUpdate = true;
+                      return sp[refinement];
+                    }
+                  });
+                  cntc[cf + '__c'] = cfValue;
+                }
+              };
+
+              if (shouldUpdate) {
+                var result = sforce.connection.update([cntc]);
+                if (result[0].getBoolean("success")) {
+                  alert("Successfully updated Custom Social Profiles, please reload the page!")
+                } else {
+                  alert('Error :(. Please report to dev support: ' + result);
+                };
+              }
+            });
+          }
+        })();
+      </script>
+    </head>
+    <body>
+      <button onclick="fullcontact.persist()">fullcontact.persist</button>
+      <button onclick="remoteObject.loadSocialProfiles()">remoteObject.loadSocialProfiles</button>
+      <table>
+        <tbody>
+          <tr id="socialProfiles" style="visibility: collapse"></tr>
+        </tbody>
+      </table>
+    </body>
+  </html>
+</apex:page>

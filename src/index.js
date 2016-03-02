@@ -5,7 +5,7 @@ import App from './App';
 const fullcontactKeys = ["status", "requestId", "likelihood", "photos", "contactInfo", "demographics", "socialProfiles"]
 
 // ONLY FOR LOCAL DEVELOPMENT
-const sObjectData = require('json!./../narzedzia/fullcontact_ws.json')
+const sObjectData = require('json!./../narzedzia/fullcontact_ms.json')
 const fullcontactData = require('json!./../narzedzia/fullcontact_mk.json')
 
 window.sObjectData = sObjectData;

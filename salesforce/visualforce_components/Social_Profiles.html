@@ -32,7 +32,7 @@
               contact.Social_Profiles__c = socialProfiles;
               result = sforce.connection.update([contact]);
               if (result[0].getBoolean("success")) {
-                resolve(socialProfiles);
+                resolve(JSON.parse(socialProfiles));
               } else {
                 reject(result);
               };
@@ -73,62 +73,67 @@
                   resolve(parseInsideNode(socialProfiles));
                 } else {
                   fetch(getFullcontactUrl()).then(function(response) {
-                    return response.json()}).then(function(json) {
-                    persistSocialProfiles(
+                    return response.json()
+                  }).then(function(json) {
+                    return persistSocialProfiles(
                       createSalesForceContact(),
                       JSON.stringify(json.socialProfiles)
-                    ).then(resolve(socialProfiles));
+                    );
+                  }).then(function(socialProfiles) {
+                    resolve(socialProfiles);
                   });
                 }
               });
             });
           }
 
-          function updateCustomFields(socialProfiles) {
-            cntc = createSalesForceContact();
-            var customFields = getCustomFields();
-            var shouldUpdate = false;
+          // Update sObject Part
 
+          function assignToCustomFields(contact, customFields, socialProfiles) {
+            var assignedAny = false;
             for (var cf in customFields) {
               if (!customFields[cf]) {
                 var name = cf.split('_')[0];
                 var refinement = cf.split('_')[1];
                 var cfValue = socialProfiles.map(function(sp) {
                   if (sp.typeName.toLowerCase() === name && sp[refinement]) {
-                    shouldUpdate = true;
+                    assignedAny = true;
                     return sp[refinement];
                   }
                 });
-                cntc[cf + '__c'] = cfValue;
+                contact[cf + '__c'] = cfValue;
               }
             };
-
-            if (shouldUpdate) {
-              var result = sforce.connection.update([cntc]);
-              if (result[0].getBoolean("success")) {
-                var success_msg = "Successfully updated Custom Social Profiles, please reload the page to see results."
-                alert(success_msg);
-              } else {
-                alert("Error, please report to dev support: " + result);
-              };
-            }
+            return assignedAny;
           }
+
+          function updateSobject(contact) {
+            var result = sforce.connection.update([contact]);
+            if (result[0].getBoolean("success")) {
+              alert("Successfully updated Custom Social Profiles, please reload the page to see results.")
+            } else {
+              alert("Error, please report to dev support: " + result);
+            };
+          }
+
+          function updateCustomFields(socialProfiles) {
+            contact = createSalesForceContact();
+            var customFields = getCustomFields();
+            var assignedAny = assignToCustomFields(contact, customFields, socialProfiles);
+            if (assignedAny) { updateSobject(contact) };
+          }
+
+          /// Update sObject Part
 
           if (typeof loadSocialProfiles === "function") {
             loadSocialProfiles().then(function(socialProfiles) {
-              updateCustomFields(socialProfiles)
+              updateCustomFields(socialProfiles);
             });
           }
         })();
       </script>
     </head>
     <body>
-      <button id="fcButton" onclick="fullcontact.persist()">
-        fullcontact.persist
-      </button>
-      <button id="soButton" onclick="remoteObject.loadSocialProfiles()">
-        remoteObject.loadSocialProfiles
-      </button>
     </body>
   </html>
 </apex:page>

@@ -7,27 +7,10 @@
   <html>
     <head>
       <meta charset="UTF-8"/>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/0.11.0/fetch.min.js"></script>
       <script src="/soap/ajax/36.0/connection.js"></script>
       <script type="text/javascript">
         var fullcontact = {
-          fetch: function () {
-            console.log("fetch");
-            return new Promise(function(resolve, reject) {
-              var apiKey = // Your key here;
-              var url = "https://api.fullcontact.com/v2/person.json?email={!Contact.Email}&apiKey=" + apiKey;
-              var xmlhttp = new XMLHttpRequest();
-              xmlhttp.onreadystatechange = function () {
-                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                  window.fullcontactData = JSON.parse(xmlhttp.responseText);
-                  window.socialProfiles = window.fullcontactData.socialProfiles;
-                  console.log("fetch: Successfully fetched Social Profiles from FullContact");
-                  resolve();
-                }
-              };
-              xmlhttp.open("GET", url, true);
-              xmlhttp.send();
-            });
-          },
           persist: function () {
             console.log("persist");
             return new Promise(function(resolve, reject) {
@@ -61,10 +44,14 @@
                   resolve();
                 } else {
                   console.log("loadSocialProfiles: No socialProfiles");
-                  fullcontact.fetch()
-                    .then(function() {
+                  var apiKey = // Your FullContact key.
+                  fetch("https://api.fullcontact.com/v2/person.json?{!Contact.Email}&apiKey=" + apiKey)
+                    .then(function(response) {
+                      return response.json();
+                    }).then(function(json) {
+                      window.socialProfiles = json.socialProfiles;
+                      console.log("fetch: Successfully fetched Social Profiles from FullContact");
                       fullcontact.persist();
-                    }).then(function() {
                       resolve();
                     });
                 }

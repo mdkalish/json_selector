@@ -11,8 +11,9 @@
       <script type="text/javascript">
         var fullcontact = {
           fetch: function () {
+            console.log("fetch");
             return new Promise(function(resolve, reject) {
-              var apiKey = // give your key here
+              var apiKey = // Your key here;
               var url = "https://api.fullcontact.com/v2/person.json?email={!Contact.Email}&apiKey=" + apiKey;
               var xmlhttp = new XMLHttpRequest();
               xmlhttp.onreadystatechange = function () {
@@ -21,15 +22,14 @@
                   window.socialProfiles = window.fullcontactData.socialProfiles;
                   console.log("fetch: Successfully fetched Social Profiles from FullContact");
                   resolve();
-                } else {
-                  reject(console.error(xmlhttp.statusText));
                 }
               };
               xmlhttp.open("GET", url, true);
               xmlhttp.send();
             });
           },
-          persist: function (socialProfiles) {
+          persist: function () {
+            console.log("persist");
             return new Promise(function(resolve, reject) {
               var contact = new sforce.SObject("Contact");
               contact.Id = '{!Contact.Id}';
@@ -38,7 +38,6 @@
               if (result[0].getBoolean("success")) {
                 console.log("persist: Successfully persisted FullContact data to sObject");
                 resolve();
-                // alert("Successfully saved FullContact info, please reload the page.");
               } else {
                 console.error("persist: Error persisting FullContact data to sObject: ");
                 console.log(result);
@@ -50,6 +49,7 @@
 
         var remoteObject = {
           loadSocialProfiles: function () {
+            console.log("loadSocialProfiles");
             return new Promise(function(resolve, reject) {
               var rom = new RemoteObjectModel.Contact();
               rom.retrieve({where: {Id: {eq: '{!Contact.Id}'}}}, function(err, res, e) {
@@ -60,17 +60,21 @@
                   console.log("loadSocialProfiles: Successfully loaded Social Profiles from sObject");
                   resolve();
                 } else {
+                  console.log("loadSocialProfiles: No socialProfiles");
                   fullcontact.fetch()
-                    .then(fullcontact.persist())
-                    .then(resolve());
+                    .then(function() {
+                      fullcontact.persist();
+                    }).then(function() {
+                      resolve();
+                    });
                 }
               });
             });
           },
           updateCustomFields: function() {
+            console.log("updateCustomFields");
             var cntc = new sforce.SObject("Contact");
             cntc.Id = '{!Contact.Id}';
-            var socialProfiles = JSON.parse('{!Contact.Social_Profiles__c}');
             var customFields = {
               facebook_url: '{!Contact.Facebook_URL__c}',
               github_url: '{!Contact.GitHub_URL__c}',
@@ -84,8 +88,8 @@
               if (!customFields[cf]) {
                 var name = cf.split('_')[0];
                 var refinement = cf.split('_')[1];
-                var cfValue = socialProfiles.map(function(sp) {
-                  if (sp.type.toLowerCase() === name && sp[refinement]) {
+                var cfValue = window.socialProfiles.map(function(sp) {
+                  if (sp.typeName.toLowerCase() === name && sp[refinement]) {
                     shouldUpdate = true;
                     return sp[refinement];
                   }
@@ -97,9 +101,12 @@
             if (shouldUpdate) {
               var result = sforce.connection.update([cntc]);
               if (result[0].getBoolean("success")) {
-                alert("Successfully updated Custom Social Profiles, please reload the page!")
+                var success_msg = "Successfully updated Custom Social Profiles, please reload the page to see results."
+                console.log(success_msg);
+                alert(success_msg);
               } else {
-                alert('Error :(. Please report to dev support: ' + result);
+                alert("Error, please report to dev support: " + result);
+                console.error(result);
               };
             }
           }
@@ -108,7 +115,9 @@
         (function () {
           if (typeof remoteObject.loadSocialProfiles === "function") {
             remoteObject.loadSocialProfiles()
-              .then(remoteObject.updateCustomFields());
+              .then(function() {
+                remoteObject.updateCustomFields()
+              });
           }
         })();
       </script>

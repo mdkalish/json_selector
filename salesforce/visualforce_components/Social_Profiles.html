@@ -17,7 +17,7 @@
             return contact;
           }
 
-          function getCustomFields() {
+          function getCustomSocialProfiles() {
             return {
               facebook_url: '{!Contact.Facebook_URL__c}',
               github_url: '{!Contact.GitHub_URL__c}',
@@ -108,6 +108,7 @@
           }
 
           function updateSobject(contact) {
+            contact.Social_Profiles_Updated_At__c = new Date();
             var result = sforce.connection.update([contact]);
             if (result[0].getBoolean("success")) {
               alert("Successfully updated Custom Social Profiles, please reload the page to see results.")
@@ -118,7 +119,7 @@
 
           function updateCustomFields(socialProfiles) {
             contact = createSalesForceContact();
-            var customFields = getCustomFields();
+            var customFields = getCustomSocialProfiles();
             var assignedAny = assignToCustomFields(contact, customFields, socialProfiles);
             if (assignedAny) { updateSobject(contact) };
           }

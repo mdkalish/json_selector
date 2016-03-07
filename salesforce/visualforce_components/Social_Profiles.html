@@ -111,9 +111,9 @@
             contact.Social_Profiles_Updated_At__c = new Date();
             var result = sforce.connection.update([contact]);
             if (result[0].getBoolean("success")) {
-              alert("Successfully updated Custom Social Profiles, please reload the page to see results.")
+              console.info("FullContact update successful, reload the page.");
             } else {
-              alert("Error, please report to dev support: " + result);
+              console.error("FullContact update error, please report to dev support: " + result);
             };
           }
 

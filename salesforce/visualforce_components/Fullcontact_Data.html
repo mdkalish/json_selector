@@ -26,7 +26,8 @@
             xmlhttp.onreadystatechange = function() {
               if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
                 var response = JSON.parse(xmlhttp.responseText);
-                _this.storeInSObject(response);
+                window.fullcontactResponse = response;
+                // _this.storeInSObject(response);
                 // jSelect(response);
               }
             };
@@ -55,31 +56,34 @@
             console.log(Object.keys(obj));
           }
           <!-- //Fullcontact part -->
+        }
 
+
+
+        <!-- React part -->
+
+        function updateResultingJson(newData) {
           /*
-          <!-- React part -->
+          sObjectData.socialProfiles.map(function(sp) {
+            if (sp.type.toLowerCase() === newData.type.toLowerCase()) {
+              if (newData.picked === true) {
+                sp[newData.keyPart] = newData.fullContactValue;
+              } else if (newData.picked === false) {
+                sp[newData.keyPart] = newData.sObjectValue;
+              }
+            }
+          })
+          */
+          console.log('updateResultingJson');
+        };
 
+        function jSelect(fullcontactData) {
           var sObjectData = JSON.parse(document.getElementById('socialProfiles').innerHTML);
           window.sObjectData = sObjectData;
+          JSelector.render(document.getElementById('JSelectorMountPoint'), window.sObjectData, fullcontactData, updateResultingJson);
+        }
+        <!-- //React part -->
 
-          function updateResultingJson(newData) {
-            sObjectData.socialProfiles.map(function(sp) {
-              if (sp.type.toLowerCase() === newData.type.toLowerCase()) {
-                if (newData.picked === true) {
-                  sp[newData.keyPart] = newData.fullContactValue;
-                } else if (newData.picked === false) {
-                  sp[newData.keyPart] = newData.sObjectValue;
-                }
-              }
-            })
-          };
-
-          function jSelect(fullcontactData) {
-            JSelector.render(document.getElementById('JSelectorMountPoint'), sObjectData, fullcontactData, updateResultingJson);
-          }
-          <!-- //React part -->
-          */
-        };
 
         <!-- Remote Object part  -->
         <!-- Experimental area -->

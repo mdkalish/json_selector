@@ -12,10 +12,12 @@
       <script src="/soap/ajax/36.0/connection.js"></script>
       <script type="text/javascript">
         (function () {
-          function createSalesForceContact() {
-            var contact = new sforce.SObject("Contact");
-            contact.Id = '{!Contact.Id}';
-            return contact;
+          function getFullcontactApiKey() {
+            return "YourApiKey";
+          }
+
+          function getWantedSocialProfilesTypeNames() {
+            return ["facebook", "github", "linkedin", "twitter"];
           }
 
           function getCustomSocialProfiles() {
@@ -26,6 +28,20 @@
               twitter_url: '{!Contact.Twitter_URL__c}',
               twitter_followers: '{!Contact.Twitter_Followers__c}'
             };
+          }
+
+          function getEmails() {
+            return [
+              '{!Contact.Email}',
+              '{!Contact.Email2__c}',
+              '{!Contact.Personal_email_address__c}'
+            ].filter(Boolean);
+          }
+
+          function createSalesForceContact() {
+            var contact = new sforce.SObject("Contact");
+            contact.Id = '{!Contact.Id}';
+            return contact;
           }
 
           function persistSocialProfiles(contact, socialProfiles) {
@@ -53,27 +69,51 @@
             var remoteObjectModel = new RemoteObjectModel.Contact();
             return new Promise(function(resolve, reject) {
               remoteObjectModel.retrieve({where: {Id: {eq: '{!Contact.Id}'}}}, function(err, res, e) {
-                resolve(res[0].get("Social_Profiles__c"));
+                resolve({
+                  asText: res[0].get("Social_Profiles__c"),
+                  customFields: {
+                    facebook_url: res[0].get("Facebook_URL__c"),
+                    github_url: res[0].get("GitHub_URL__c"),
+                    linkedin_url: res[0].get("LinkedIn_URL__c"),
+                    twitter_url: res[0].get("Twitter_URL__c"),
+                    twitter_followers: res[0].get("Twitter_Followers__c")
+                  }
+                });
               });
             })
           }
 
-          function getFullcontactUrl() {
-            var host = "https://api.fullcontact.com"
-            var endpoint = "/v2/person.json"
-            var query = "?email={!Contact.Email}&"
-            var apiKey = "apiKey=YourApiKey"
-            var url = host + endpoint + query + apiKey;
+          function getFullcontactUrl(queryEmail) {
+            var endpoint = "https://api.fullcontact.com/v2/person.json";
+            var query = "?email=" + queryEmail + "&apiKey=" + getFullcontactApiKey();
+            var url = endpoint + query;
             return url;
           }
 
-          function loadSocialProfiles() {
+          function allCustomFieldsFilled(socialProfiles) {
+            return !_.includes(socialProfiles, undefined);
+          }
+
+          function allSocialProfilesPresent(socialProfiles) {
+            if (!socialProfiles) { return false }
+            var spArray = parseInsideNode(socialProfiles);
+            var wanted = getWantedSocialProfilesTypeNames();
+            var present = [];
+            spArray.map(function(sp) {
+              present.push(sp.typeName.toLowerCase());
+            });
+            return _.intersection(wanted, present).length === wanted.length;
+          }
+
+          function loadSocialProfiles(queryEmail) {
             return new Promise(function(resolve, reject) {
               retrieveSocialProfilesFromSobject().then(function(socialProfiles) {
-                if (socialProfiles) {
-                  resolve(parseInsideNode(socialProfiles));
+                if (allCustomFieldsFilled(socialProfiles.customFields)) {
+                  resolve(false);
+                } else if (allSocialProfilesPresent(socialProfiles.asText)) {
+                  resolve(parseInsideNode(socialProfiles.asText));
                 } else {
-                  fetch(getFullcontactUrl()).then(function(response) {
+                  fetch(getFullcontactUrl(queryEmail)).then(function(response) {
                     return response.json()
                   }).then(function(json) {
                     return persistSocialProfiles(
@@ -128,8 +168,12 @@
           /// Update sObject Part
 
           if (typeof loadSocialProfiles === "function") {
-            loadSocialProfiles().then(function(socialProfiles) {
-              updateCustomFields(socialProfiles);
+            getEmails().map(function(queryEmail) {
+              loadSocialProfiles(queryEmail).then(function(socialProfiles) {
+                if (socialProfiles) {
+                  updateCustomFields(socialProfiles);
+                }
+              });
             });
           }
         })();

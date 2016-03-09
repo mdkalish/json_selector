@@ -105,7 +105,41 @@
             return _.intersection(wanted, present).length === wanted.length;
           }
 
-          function loadSocialProfiles(queryEmail) {
+          function getJson(response) {
+            return new Promise(function(resolve, reject) {
+              resolve(response.json());
+            });
+          }
+
+          function composeJson(json) {
+            return new Promise(function(resolve, reject) {
+              for (var csp in customSocialProfiles) {
+                if (!customSocialProfiles[csp]) {
+                  var name = csp.split('_')[0]
+                  var ref = csp.split('_')[1]
+                  json.socialProfiles.map(function(sp) {
+                    if (sp.typeName.toLowerCase() === name) {
+                      customSocialProfiles[csp] = sp[ref];
+                      contact[csp + "__c"] = sp[ref];
+                    }
+                  });
+                }
+              }
+              window.SP = customSocialProfiles;
+              resolve();
+            })
+          }
+
+          function collectFullcontactData() {
+            promises = getEmails().map(function(queryEmail) {
+              return fetch(getFullcontactUrl(queryEmail))
+                      .then(getJson)
+                      .then(composeJson);
+            });
+            return Promise.all(promises);
+          }
+
+          function loadSocialProfiles() {
             return new Promise(function(resolve, reject) {
               retrieveSocialProfilesFromSobject().then(function(socialProfiles) {
                 if (allCustomFieldsFilled(socialProfiles.customFields)) {
@@ -113,16 +147,21 @@
                 } else if (allSocialProfilesPresent(socialProfiles.asText)) {
                   resolve(parseInsideNode(socialProfiles.asText));
                 } else {
-                  fetch(getFullcontactUrl(queryEmail)).then(function(response) {
-                    return response.json()
-                  }).then(function(json) {
-                    return persistSocialProfiles(
-                      createSalesForceContact(),
-                      JSON.stringify(json.socialProfiles)
-                    );
-                  }).then(function(socialProfiles) {
-                    resolve(socialProfiles);
-                  });
+                  collectFullcontactData()
+                    // .then(assignToCustomFields)
+                    .then(function() {
+                      console.log(contact)
+                    });
+                  // fetch(getFullcontactUrl(queryEmail))
+                  // .then(getJson)
+                  // .then(function(json) {
+                  //   return persistSocialProfiles(
+                  //     createSalesForceContact(),
+                  //     JSON.stringify(json.socialProfiles)
+                  //   );
+                  // }).then(function(socialProfiles) {
+                  //   resolve(socialProfiles);
+                  // });
                 }
               });
             });
@@ -130,23 +169,24 @@
 
           // Update sObject Part
 
-          function assignToCustomFields(contact, customFields, socialProfiles) {
-            var assignedAny = false;
-            for (var cf in customFields) {
-              if (!customFields[cf]) {
-                var name = cf.split('_')[0];
-                var refinement = cf.split('_')[1];
-                var cfValue = socialProfiles.map(function(sp) {
-                  if (sp.typeName.toLowerCase() === name && sp[refinement]) {
-                    assignedAny = true;
-                    return sp[refinement];
-                  }
-                });
-                contact[cf + '__c'] = cfValue;
-              }
-            };
-            return assignedAny;
-          }
+
+          // function assignToCustomFields(customFields, socialProfiles) {
+          //   var assignedAny = false;
+          //   for (var cf in customFields) {
+          //     if (!customFields[cf]) { // IDEA 2: Check two conditions (&& if value retrieved from sObject is empty)
+          //       var name = cf.split('_')[0];
+          //       var refinement = cf.split('_')[1];
+          //       socialProfiles.map(function(sp) {
+          //         if (sp.typeName.toLowerCase() === name && sp[refinement]) {
+          //           assignedAny = true;
+          //           // window.composedJson[cf] = sp[refinement]; // assign here the hash to single final update
+          //           contact[cf + '__c'] = sp[refinement];
+          //         }
+          //       });
+          //     }
+          //   };
+          //   return assignedAny;
+          // }
 
           function updateSobject(contact) {
             contact.Social_Profiles_Updated_At__c = new Date();
@@ -159,22 +199,22 @@
           }
 
           function updateCustomFields(socialProfiles) {
-            contact = createSalesForceContact();
-            var customFields = getCustomSocialProfiles();
-            var assignedAny = assignToCustomFields(contact, customFields, socialProfiles);
+            var assignedAny = assignToCustomFields(customSocialProfiles, socialProfiles);
             if (assignedAny) { updateSobject(contact) };
           }
 
           /// Update sObject Part
 
           if (typeof loadSocialProfiles === "function") {
-            getEmails().map(function(queryEmail) {
-              loadSocialProfiles(queryEmail).then(function(socialProfiles) {
+            var customSocialProfiles = getCustomSocialProfiles();
+            var contact = createSalesForceContact();
+            // getEmails().map(function(queryEmail) {
+              loadSocialProfiles().then(function(socialProfiles) {
                 if (socialProfiles) {
                   updateCustomFields(socialProfiles);
                 }
               });
-            });
+            // });
           }
         })();
       </script>

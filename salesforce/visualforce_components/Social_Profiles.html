@@ -1,7 +1,6 @@
 <apex:page standardController="Contact" standardStylesheets="false" showHeader="false">
   <apex:remoteObjects jsNamespace="RemoteObjectModel">
-    <apex:remoteObjectModel name="Contact" fields="Id">
-      <apex:remoteObjectField name="Social_Profiles__c" rendered="false"></apex:remoteObjectField>
+    <apex:remoteObjectModel name="Contact" fields="Id,Social_Profiles__c,Facebook_URL__c,GitHub_URL__c,LinkedIn_URL__c,Twitter_URL__c,Twitter_Followers__c">
     </apex:remoteObjectModel>
   </apex:RemoteObjects>
   <html>

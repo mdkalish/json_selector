@@ -21,25 +21,25 @@
 
           function getCustomSocialProfiles() {
             return {
-              facebook_url: '{!Contact.Facebook_URL__c}',
-              github_url: '{!Contact.GitHub_URL__c}',
-              linkedin_url: '{!Contact.LinkedIn_URL__c}',
-              twitter_url: '{!Contact.Twitter_URL__c}',
-              twitter_followers: '{!Contact.Twitter_Followers__c}'
+              facebook_url: "{!Contact.Facebook_URL__c}",
+              github_url: "{!Contact.GitHub_URL__c}",
+              linkedin_url: "{!Contact.LinkedIn_URL__c}",
+              twitter_url: "{!Contact.Twitter_URL__c}",
+              twitter_followers: "{!Contact.Twitter_Followers__c}"
             };
           }
 
           function getEmails() {
             return [
-              '{!Contact.Email}',
-              '{!Contact.Email2__c}',
-              '{!Contact.Personal_email_address__c}'
+              "{!Contact.Email}",
+              "{!Contact.Email2__c}",
+              "{!Contact.Personal_email_address__c}"
             ].filter(Boolean);
           }
 
           function createSalesForceContact() {
             var contact = new sforce.SObject("Contact");
-            contact.Id = '{!Contact.Id}';
+            contact.Id = "{!Contact.Id}";
             return contact;
           }
 

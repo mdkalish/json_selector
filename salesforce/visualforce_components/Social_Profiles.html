@@ -12,7 +12,7 @@
       <script type="text/javascript">
         (function () {
           FULLCONTACT_API_KEY = "YourApiKey";
-          WANTED_SOCIAL_PROFILES_TYPES = ["facebook", "github", "linkedin", "twitter"];
+          WANTED = ["facebook", "github", "linkedin", "twitter"];
 
           function getCustomSocialProfiles() {
             return {
@@ -81,13 +81,12 @@
           function allSocialProfilesPresent(asText) {
             if (!asText || _.isEqual(asText, "{}")) { return false }
             var spArray = parseInsideNode(asText);
-            var wanted = WANTED_SOCIAL_PROFILES_TYPES;
             var present = spArray.map(function(e) {
-              if (wanted.includes(e.type)) {
+              if (WANTED.includes(e.type)) {
                 return e.type
               }
             });
-            return _.isEqual(_.intersection(present, wanted).sort(), wanted)
+            return _.isEqual(_.intersection(present, WANTED).sort(), WANTED)
           }
 
           function parseInsideNode(socialProfiles) {

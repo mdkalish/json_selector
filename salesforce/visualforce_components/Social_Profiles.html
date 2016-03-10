@@ -11,13 +11,8 @@
       <script src="/soap/ajax/36.0/connection.js"></script>
       <script type="text/javascript">
         (function () {
-          function getFullcontactApiKey() {
-            return "YourApiKey";
-          }
-
-          function getWantedSocialProfilesTypeNames() {
-            return ["facebook", "github", "linkedin", "twitter"];
-          }
+          FULLCONTACT_API_KEY = "YourApiKey";
+          WANTED_SOCIAL_PROFILES_TYPES = ["facebook", "github", "linkedin", "twitter"];
 
           function getCustomSocialProfiles() {
             return {
@@ -84,7 +79,7 @@
           function allSocialProfilesPresent(asText) {
             if (!asText) { return false }
             var spArray = parseInsideNode(asText);
-            var wanted = getWantedSocialProfilesTypeNames();
+            var wanted = WANTED_SOCIAL_PROFILES_TYPES;
             var present = spArray.map(function(e) {
               if (wanted.includes(e.type)) {
                 return e.type
@@ -111,7 +106,7 @@
 
           function getFullcontactUrl(queryEmail) {
             var endpoint = "https://api.fullcontact.com/v2/person.json";
-            var query = "?email=" + queryEmail + "&apiKey=" + getFullcontactApiKey();
+            var query = "?email=" + queryEmail + "&apiKey=" + FULLCONTACT_API_KEY;
             var url = endpoint + query;
             return url;
           }

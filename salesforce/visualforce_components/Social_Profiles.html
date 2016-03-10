@@ -43,15 +43,6 @@
             return contact;
           }
 
-          function parseInsideNode(socialProfiles) {
-            var socialProfilesNode = document.createElement("div");
-            socialProfilesNode.style.display = "none";
-            socialProfilesNode.innerHTML = socialProfiles;
-            var socialProfilesJson = JSON.parse(socialProfilesNode.innerHTML);
-            socialProfilesNode.remove();
-            return socialProfilesJson;
-          }
-
           function loadSocialProfiles() {
             return new Promise(function(resolve, reject) {
               retrieveSocialProfilesFromSobject().then(function(socialProfiles) {
@@ -102,6 +93,22 @@
             return _.isEqual(_.intersection(present, wanted).sort(), wanted)
           }
 
+          function parseInsideNode(socialProfiles) {
+            var socialProfilesNode = document.createElement("div");
+            socialProfilesNode.style.display = "none";
+            socialProfilesNode.innerHTML = socialProfiles;
+            var socialProfilesJson = JSON.parse(socialProfilesNode.innerHTML);
+            socialProfilesNode.remove();
+            return socialProfilesJson;
+          }
+
+          function collectFullcontactData() {
+            promises = getEmails().map(function(queryEmail) {
+              return fetch(getFullcontactUrl(queryEmail)).then(getJson).then(getSocialProfiles);
+            });
+            return Promise.all(promises);
+          }
+
           function getFullcontactUrl(queryEmail) {
             var endpoint = "https://api.fullcontact.com/v2/person.json";
             var query = "?email=" + queryEmail + "&apiKey=" + getFullcontactApiKey();
@@ -120,8 +127,8 @@
           function assignToCustomFields(socialProfiles) {
             return new Promise(function(resolve, reject) {
               for (var csp in customSocialProfiles) {
-                var name = csp.split('_')[0]
-                var ref = csp.split('_')[1]
+                var name = csp.split('_')[0];
+                var ref = csp.split('_')[1];
                 _.forEach(socialProfiles, function(sp) {
                   if (sp.typeName.toLowerCase() === name && !customSocialProfiles[csp]) {
                     customSocialProfiles[csp] = sp[ref];
@@ -132,17 +139,6 @@
               contact.Social_Profiles__c = JSON.stringify(_.flatten(socialProfiles));
               resolve(contact);
             })
-          }
-
-          function composeArray(socialProfiles) {
-            return socialProfiles.socialProfiles;
-          }
-
-          function collectFullcontactData() {
-            promises = getEmails().map(function(queryEmail) {
-              return fetch(getFullcontactUrl(queryEmail)).then(getJson).then(getSocialProfiles)
-            });
-            return Promise.all(promises);
           }
 
           // Update sObject Part

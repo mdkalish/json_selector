@@ -47,7 +47,7 @@
                   resolve(parseInsideNode(socialProfiles.asText));
                 } else {
                   collectFullcontactData().then(function(spArray) {
-                    socialProfiles = _.flatten(spArray);
+                    socialProfiles = _.flatten(spArray.filter(Boolean));
                     contact.Social_Profiles__c = JSON.stringify(socialProfiles);
                     resolve(socialProfiles);
                   });
@@ -127,7 +127,7 @@
                 var name = csp.split('_')[0];
                 var ref = csp.split('_')[1];
                 _.forEach(socialProfiles, function(sp) {
-                  if (sp.typeName.toLowerCase() === name && !customSocialProfiles[csp]) {
+                  if (sp && sp.typeName.toLowerCase() === name && !customSocialProfiles[csp]) {
                     customSocialProfiles[csp] = sp[ref];
                     contact[csp + "__c"] = sp[ref];
                   }

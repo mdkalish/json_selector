@@ -79,7 +79,7 @@
           }
 
           function allSocialProfilesPresent(asText) {
-            if (!asText) { return false }
+            if (!asText || _.isEqual(asText, "{}")) { return false }
             var spArray = parseInsideNode(asText);
             var wanted = WANTED_SOCIAL_PROFILES_TYPES;
             var present = spArray.map(function(e) {

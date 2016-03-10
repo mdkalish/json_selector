@@ -47,7 +47,9 @@
                   resolve(parseInsideNode(socialProfiles.asText));
                 } else {
                   collectFullcontactData().then(function(spArray) {
-                    resolve(_.flatten(spArray));
+                    socialProfiles = _.flatten(spArray);
+                    contact.Social_Profiles__c = JSON.stringify(socialProfiles);
+                    resolve(socialProfiles);
                   });
                 }
               });
@@ -131,7 +133,6 @@
                   }
                 });
               }
-              contact.Social_Profiles__c = JSON.stringify(_.flatten(socialProfiles));
               resolve(contact);
             })
           }

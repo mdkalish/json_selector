@@ -11,18 +11,16 @@
       <script src="/soap/ajax/36.0/connection.js"></script>
       <script type="text/javascript">
         (function () {
-          FULLCONTACT_API_KEY = "YourApiKey";
-          WANTED = ["facebook", "github", "linkedin", "twitter"];
-
-          function getCustomSocialProfiles() {
-            return {
-              facebook_url: "{!Contact.Facebook_URL__c}",
-              github_url: "{!Contact.GitHub_URL__c}",
-              linkedin_url: "{!Contact.LinkedIn_URL__c}",
-              twitter_url: "{!Contact.Twitter_URL__c}",
-              twitter_followers: "{!Contact.Twitter_Followers__c}"
-            };
-          }
+          const FULLCONTACT_API_KEY = "YourApiKey";
+          const API_URL = "https://api.fullcontact.com/v2/person.json";
+          const WANTED = ["facebook", "github", "linkedin", "twitter"];
+          const CUSTOM_SOCIAL_PROFILES = {
+            facebook_url: "{!Contact.Facebook_URL__c}",
+            github_url: "{!Contact.GitHub_URL__c}",
+            linkedin_url: "{!Contact.LinkedIn_URL__c}",
+            twitter_url: "{!Contact.Twitter_URL__c}",
+            twitter_followers: "{!Contact.Twitter_Followers__c}"
+          };
 
           function getEmails() {
             return [
@@ -46,7 +44,7 @@
                 } else if (allSocialProfilesPresent(socialProfiles.asText)) {
                   resolve(parseInsideNode(socialProfiles.asText));
                 } else {
-                  collectFullcontactData().then(function(spArray) {
+                  collectFullContactData().then(function(spArray) {
                     socialProfiles = _.flatten(spArray.filter(Boolean));
                     contact.Social_Profiles__c = JSON.stringify(socialProfiles);
                     resolve(socialProfiles);
@@ -60,14 +58,15 @@
             var remoteObjectModel = new RemoteObjectModel.Contact();
             return new Promise(function(resolve, reject) {
               remoteObjectModel.retrieve({where: {Id: {eq: contact.Id}}}, function(err, res, e) {
+                myContact = res[0];
                 resolve({
-                  asText: res[0].get("Social_Profiles__c"),
+                  asText: myContact.get("Social_Profiles__c"),
                   customFields: {
-                    facebook_url: res[0].get("Facebook_URL__c"),
-                    github_url: res[0].get("GitHub_URL__c"),
-                    linkedin_url: res[0].get("LinkedIn_URL__c"),
-                    twitter_url: res[0].get("Twitter_URL__c"),
-                    twitter_followers: res[0].get("Twitter_Followers__c")
+                    facebook_url: myContact.get("Facebook_URL__c"),
+                    github_url: myContact.get("GitHub_URL__c"),
+                    linkedin_url: myContact.get("LinkedIn_URL__c"),
+                    twitter_url: myContact.get("Twitter_URL__c"),
+                    twitter_followers: myContact.get("Twitter_Followers__c")
                   }
                 });
               });
@@ -98,17 +97,16 @@
             return socialProfilesJson;
           }
 
-          function collectFullcontactData() {
+          function collectFullContactData() {
             promises = getEmails().map(function(queryEmail) {
-              return fetch(getFullcontactUrl(queryEmail)).then(getJson).then(getSocialProfiles);
+              return fetch(getFullContactUrl(queryEmail)).then(getJson).then(getSocialProfiles);
             });
             return Promise.all(promises);
           }
 
-          function getFullcontactUrl(queryEmail) {
-            var endpoint = "https://api.fullcontact.com/v2/person.json";
+          function getFullContactUrl(queryEmail) {
             var query = "?email=" + queryEmail + "&apiKey=" + FULLCONTACT_API_KEY;
-            var url = endpoint + query;
+            var url = API_URL + query;
             return url;
           }
 
@@ -122,6 +120,7 @@
 
           function assignToCustomFields(socialProfiles) {
             return new Promise(function(resolve, reject) {
+              var customSocialProfiles = CUSTOM_SOCIAL_PROFILES;
               for (var csp in customSocialProfiles) {
                 var name = csp.split('_')[0];
                 var ref = csp.split('_')[1];
@@ -147,7 +146,6 @@
           }
 
           if (typeof loadSocialProfiles === "function") {
-            var customSocialProfiles = getCustomSocialProfiles();
             var contact = createSalesForceContact();
             loadSocialProfiles().then(assignToCustomFields).then(updateSobject);
           }

@@ -137,8 +137,6 @@
             })
           }
 
-          // Update sObject Part
-
           function updateSobject(newContact) {
             newContact.Social_Profiles_Updated_At__c = new Date();
             var result = sforce.connection.update([newContact]);
@@ -148,8 +146,6 @@
               console.error("sObject update error, please report to dev support: " + result);
             };
           }
-
-          /// Update sObject Part
 
           if (typeof loadSocialProfiles === "function") {
             var customSocialProfiles = getCustomSocialProfiles();

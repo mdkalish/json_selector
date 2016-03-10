@@ -64,10 +64,26 @@
             return socialProfilesJson;
           }
 
+          function loadSocialProfiles() {
+            return new Promise(function(resolve, reject) {
+              retrieveSocialProfilesFromSobject().then(function(socialProfiles) {
+                if (allCustomFieldsFilled(socialProfiles.customFields)) {
+                  resolve(false);
+                } else if (allSocialProfilesPresent(socialProfiles.asText)) {
+                  resolve(parseInsideNode(socialProfiles.asText));
+                } else {
+                  collectFullcontactData().then(function(spArray) {
+                    resolve(_.flatten(spArray));
+                  })
+                }
+              });
+            });
+          }
+
           function retrieveSocialProfilesFromSobject() {
             var remoteObjectModel = new RemoteObjectModel.Contact();
             return new Promise(function(resolve, reject) {
-              remoteObjectModel.retrieve({where: {Id: {eq: '{!Contact.Id}'}}}, function(err, res, e) {
+              remoteObjectModel.retrieve({where: {Id: {eq: contact.Id}}}, function(err, res, e) {
                 resolve({
                   asText: res[0].get("Social_Profiles__c"),
                   customFields: {
@@ -82,6 +98,20 @@
             })
           }
 
+          function allCustomFieldsFilled(socialProfiles) {
+            return !_.includes(socialProfiles, undefined);
+          }
+
+          function allSocialProfilesPresent(asText) {
+            if (!asText) { return false }
+            var spArray = parseInsideNode(asText);
+            var wanted = getWantedSocialProfilesTypeNames();
+            var present = _.remove(spArray, function(e) {
+              return wanted.includes(e.type)
+            });
+            return present.length === wanted.length;
+          }
+
           function getFullcontactUrl(queryEmail) {
             var endpoint = "https://api.fullcontact.com/v2/person.json";
             var query = "?email=" + queryEmail + "&apiKey=" + getFullcontactApiKey();
@@ -89,117 +119,55 @@
             return url;
           }
 
-          function allCustomFieldsFilled(socialProfiles) {
-            return !_.includes(socialProfiles, undefined);
-          }
-
-          function allSocialProfilesPresent(socialProfiles) {
-            if (!socialProfiles) { return false }
-            var spArray = parseInsideNode(socialProfiles);
-            var wanted = getWantedSocialProfilesTypeNames();
-            var present = [];
-            spArray.map(function(sp) {
-              present.push(sp.typeName.toLowerCase());
-            });
-            return _.intersection(wanted, present).length === wanted.length;
-          }
-
           function getJson(response) {
-            return new Promise(function(resolve, reject) {
-              resolve(response.json());
-            });
+            return Promise.resolve(response.json());
           }
 
-          function composeJson(json) {
+          function getSocialProfiles(json) {
+            return Promise.resolve(json.socialProfiles);
+          }
+
+          function assignToCustomFields(socialProfiles) {
             return new Promise(function(resolve, reject) {
               for (var csp in customSocialProfiles) {
-                if (!customSocialProfiles[csp]) {
-                  var name = csp.split('_')[0]
-                  var ref = csp.split('_')[1]
-                  json.socialProfiles.map(function(sp) {
-                    if (sp.typeName.toLowerCase() === name) {
-                      customSocialProfiles[csp] = sp[ref];
-                      contact[csp + "__c"] = sp[ref];
-                    }
-                  });
-                }
+                var name = csp.split('_')[0]
+                var ref = csp.split('_')[1]
+                _.forEach(socialProfiles, function(sp) {
+                  if (sp.typeName.toLowerCase() === name && !customSocialProfiles[csp]) {
+                    customSocialProfiles[csp] = sp[ref];
+                    contact[csp + "__c"] = sp[ref];
+                  }
+                });
               }
-              window.SP = customSocialProfiles;
-              resolve();
+              resolve(contact);
             })
+          }
+
+          function composeArray(socialProfiles) {
+            return socialProfiles.socialProfiles;
           }
 
           function collectFullcontactData() {
             promises = getEmails().map(function(queryEmail) {
               return fetch(getFullcontactUrl(queryEmail))
                       .then(getJson)
-                      .then(composeJson);
+                      .then(getSocialProfiles)
             });
             return Promise.all(promises);
           }
 
-          function loadSocialProfiles() {
-            return new Promise(function(resolve, reject) {
-              retrieveSocialProfilesFromSobject().then(function(socialProfiles) {
-                if (allCustomFieldsFilled(socialProfiles.customFields)) {
-                  resolve(false);
-                } else if (allSocialProfilesPresent(socialProfiles.asText)) {
-                  resolve(parseInsideNode(socialProfiles.asText));
-                } else {
-                  collectFullcontactData()
-                    // .then(assignToCustomFields)
-                    .then(function() {
-                      console.log(contact)
-                    });
-                  // fetch(getFullcontactUrl(queryEmail))
-                  // .then(getJson)
-                  // .then(function(json) {
-                  //   return persistSocialProfiles(
-                  //     createSalesForceContact(),
-                  //     JSON.stringify(json.socialProfiles)
-                  //   );
-                  // }).then(function(socialProfiles) {
-                  //   resolve(socialProfiles);
-                  // });
-                }
-              });
-            });
-          }
-
           // Update sObject Part
 
-
-          // function assignToCustomFields(customFields, socialProfiles) {
-          //   var assignedAny = false;
-          //   for (var cf in customFields) {
-          //     if (!customFields[cf]) { // IDEA 2: Check two conditions (&& if value retrieved from sObject is empty)
-          //       var name = cf.split('_')[0];
-          //       var refinement = cf.split('_')[1];
-          //       socialProfiles.map(function(sp) {
-          //         if (sp.typeName.toLowerCase() === name && sp[refinement]) {
-          //           assignedAny = true;
-          //           // window.composedJson[cf] = sp[refinement]; // assign here the hash to single final update
-          //           contact[cf + '__c'] = sp[refinement];
-          //         }
-          //       });
-          //     }
-          //   };
-          //   return assignedAny;
-          // }
-
-          function updateSobject(contact) {
-            contact.Social_Profiles_Updated_At__c = new Date();
-            var result = sforce.connection.update([contact]);
+          function updateSobject(newContact) {
+            console.log("newContact");
+            console.log(newContact);
+            newContact.Social_Profiles_Updated_At__c = new Date();
+            var result = sforce.connection.update([newContact]);
             if (result[0].getBoolean("success")) {
-              console.info("FullContact update successful, reload the page.");
+              console.info("sObject update successful, reload the page.");
             } else {
-              console.error("FullContact update error, please report to dev support: " + result);
+              console.error("sObject update error, please report to dev support: " + result);
             };
-          }
-
-          function updateCustomFields(socialProfiles) {
-            var assignedAny = assignToCustomFields(customSocialProfiles, socialProfiles);
-            if (assignedAny) { updateSobject(contact) };
           }
 
           /// Update sObject Part
@@ -207,13 +175,7 @@
           if (typeof loadSocialProfiles === "function") {
             var customSocialProfiles = getCustomSocialProfiles();
             var contact = createSalesForceContact();
-            // getEmails().map(function(queryEmail) {
-              loadSocialProfiles().then(function(socialProfiles) {
-                if (socialProfiles) {
-                  updateCustomFields(socialProfiles);
-                }
-              });
-            // });
+            loadSocialProfiles().then(assignToCustomFields).then(updateSobject);
           }
         })();
       </script>

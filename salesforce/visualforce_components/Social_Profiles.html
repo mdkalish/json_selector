@@ -12,7 +12,9 @@
       <script type="text/javascript">
         (function () {
           const FULLCONTACT_API_KEY = "YourApiKey";
-          const API_URL = "https://api.fullcontact.com/v2/person.json";
+          const FULLCONTACT_API_URL = "https://api.fullcontact.com/v2/person.json";
+          const LAST_UPDATE = "{!Contact.Social_Profiles_Updated_At__c}";
+          const UPDATE_EVERY_N_DAYS = 14;
           const WANTED = ["facebook", "github", "linkedin", "twitter"];
           const CUSTOM_SOCIAL_PROFILES = {
             facebook_url: "{!Contact.Facebook_URL__c}",
@@ -21,14 +23,11 @@
             twitter_url: "{!Contact.Twitter_URL__c}",
             twitter_followers: "{!Contact.Twitter_Followers__c}"
           };
-
-          function getEmails() {
-            return [
-              "{!Contact.Email}",
-              "{!Contact.Email2__c}",
-              "{!Contact.Personal_email_address__c}"
-            ].filter(Boolean);
-          }
+          const EMAILS = [
+            "{!Contact.Email}",
+            "{!Contact.Email2__c}",
+            "{!Contact.Personal_email_address__c}"
+          ].filter(Boolean);
 
           function createSalesForceContact() {
             var contact = new sforce.SObject("Contact");
@@ -98,7 +97,7 @@
           }
 
           function collectFullContactData() {
-            promises = getEmails().map(function(queryEmail) {
+            promises = EMAILS.map(function(queryEmail) {
               return fetch(getFullContactUrl(queryEmail)).then(getJson).then(getSocialProfiles);
             });
             return Promise.all(promises);
@@ -106,7 +105,7 @@
 
           function getFullContactUrl(queryEmail) {
             var query = "?email=" + queryEmail + "&apiKey=" + FULLCONTACT_API_KEY;
-            var url = API_URL + query;
+            var url = FULLCONTACT_API_URL + query;
             return url;
           }
 

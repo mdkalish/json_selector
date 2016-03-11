@@ -10,6 +10,7 @@
       <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.6.1/lodash.min.js"></script>
       <script src="/soap/ajax/36.0/connection.js"></script>
       <script type="text/javascript">
+        "use strict";
         (function () {
           const FULLCONTACT_API_KEY = "YourApiKey";
           const FULLCONTACT_API_URL = "https://api.fullcontact.com/v2/person.json";
@@ -36,7 +37,7 @@
           }
 
           function loadSocialProfiles() {
-            return new Promise(function(resolve, reject) {
+            return new Promise(function(resolve) {
               retrieveSocialProfilesFromSobject().then(function(socialProfiles) {
                 if (allCustomFieldsFilled(socialProfiles.customFields)) {
                   resolve(false);
@@ -55,9 +56,9 @@
 
           function retrieveSocialProfilesFromSobject() {
             var remoteObjectModel = new RemoteObjectModel.Contact();
-            return new Promise(function(resolve, reject) {
-              remoteObjectModel.retrieve({where: {Id: {eq: contact.Id}}}, function(err, res, e) {
-                myContact = res[0];
+            return new Promise(function(resolve) {
+              remoteObjectModel.retrieve({where: {Id: {eq: contact.Id}}}, function(err, res) {
+                var myContact = res[0];
                 resolve({
                   asText: myContact.get("Social_Profiles__c"),
                   customFields: {
@@ -69,7 +70,7 @@
                   }
                 });
               });
-            })
+            });
           }
 
           function allCustomFieldsFilled(socialProfiles) {
@@ -77,14 +78,14 @@
           }
 
           function allSocialProfilesPresent(asText) {
-            if (!asText || _.isEqual(asText, "{}")) { return false }
+            if (!asText || _.isEqual(asText, "{}")) { return false; }
             var spArray = parseInsideNode(asText);
             var present = spArray.map(function(e) {
               if (WANTED.includes(e.type)) {
-                return e.type
+                return e.type;
               }
             });
-            return _.isEqual(_.intersection(present, WANTED).sort(), WANTED)
+            return _.isEqual(_.intersection(present, WANTED).sort(), WANTED);
           }
 
           function parseInsideNode(socialProfiles) {
@@ -97,7 +98,7 @@
           }
 
           function collectFullContactData() {
-            promises = EMAILS.map(function(queryEmail) {
+            var promises = EMAILS.map(function(queryEmail) {
               return fetch(getFullContactUrl(queryEmail)).then(getJson).then(getSocialProfiles);
             });
             return Promise.all(promises);
@@ -118,7 +119,7 @@
           }
 
           function assignToCustomFields(socialProfiles) {
-            return new Promise(function(resolve, reject) {
+            return new Promise(function(resolve) {
               var customSocialProfiles = CUSTOM_SOCIAL_PROFILES;
               for (var csp in customSocialProfiles) {
                 var name = csp.split('_')[0];
@@ -131,17 +132,17 @@
                 });
               }
               resolve(contact);
-            })
+            });
           }
 
           function updateSobject(newContact) {
-            newContact.Social_Profiles_Updated_At__c = new Date(); // SaleSforce convert dates to UTC on server, don't convert here or it will accrue.
+            newContact.Social_Profiles_Updated_At__c = new Date(); // SalesForce converts dates to UTC on server, don't convert here or it will accrue.
             var result = sforce.connection.update([newContact]);
             if (result[0].getBoolean("success")) {
               console.info("sObject update successful, reload the page.");
             } else {
               console.error("sObject update error, please report to dev support: " + result);
-            };
+            }
           }
 
           // DateTime comparison
@@ -157,24 +158,10 @@
             );
           }
 
-          function createDateAsUTC(date) {
-            return new Date(
-              Date.UTC(
-                date.getFullYear(),
-                date.getMonth(),
-                date.getDate(),
-                date.getHours(),
-                date.getMinutes(),
-                date.getSeconds()
-              )
-            );
-          }
-
           function olderThanNDays(n) {
             if (!LAST_UPDATE) { return true; }
-            var today = new Date();
-            var days = today.getUTCDate();
             var nDaysAgo = new Date();
+            var days = nDaysAgo.getUTCDate();
             nDaysAgo.setDate(days - n);
             return convertDateToUTC(new Date(LAST_UPDATE)) < convertDateToUTC(nDaysAgo);
           }

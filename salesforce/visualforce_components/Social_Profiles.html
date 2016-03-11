@@ -136,7 +136,7 @@
           }
 
           function updateSobject(newContact) {
-            newContact.Social_Profiles_Updated_At__c = new Date();
+            newContact.Social_Profiles_Updated_At__c = new Date(); // SaleSforce convert dates to UTC on server, don't convert here or it will accrue.
             var result = sforce.connection.update([newContact]);
             if (result[0].getBoolean("success")) {
               console.info("sObject update successful, reload the page.");
@@ -145,9 +145,50 @@
             };
           }
 
+          // DateTime comparison
+
+          function convertDateToUTC(date) {
+            return new Date(
+              date.getUTCFullYear(),
+              date.getUTCMonth(),
+              date.getUTCDate(),
+              date.getUTCHours(),
+              date.getUTCMinutes(),
+              date.getUTCSeconds()
+            );
+          }
+
+          function createDateAsUTC(date) {
+            return new Date(
+              Date.UTC(
+                date.getFullYear(),
+                date.getMonth(),
+                date.getDate(),
+                date.getHours(),
+                date.getMinutes(),
+                date.getSeconds()
+              )
+            );
+          }
+
+          function olderThanNDays(n) {
+            if (!LAST_UPDATE) { return true; }
+            var today = new Date();
+            var days = today.getUTCDate();
+            var nDaysAgo = new Date();
+            nDaysAgo.setDate(days - n);
+            return convertDateToUTC(new Date(LAST_UPDATE)) < convertDateToUTC(nDaysAgo);
+          }
+
+          /// DateTime comparison
+
           if (typeof loadSocialProfiles === "function") {
-            var contact = createSalesForceContact();
-            loadSocialProfiles().then(assignToCustomFields).then(updateSobject);
+            if (olderThanNDays(UPDATE_EVERY_N_DAYS)) {
+              var contact = createSalesForceContact();
+              loadSocialProfiles().then(assignToCustomFields).then(updateSobject);
+            } else {
+              console.info("Social Profiles valid. Update interval is set to " + UPDATE_EVERY_N_DAYS + " days.");
+            }
           }
         })();
       </script>

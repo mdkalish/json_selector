@@ -1,1 +1,8 @@
-var TestObj = function(alertMe) { alert(alertMe); console.info("Foo" + alertMe); };
+var TestObj = {
+  alertMe: function (text) { 
+    alert(text);
+  },
+  logMe: function (text) {
+    console.info("Foo " + text);
+  }
+};

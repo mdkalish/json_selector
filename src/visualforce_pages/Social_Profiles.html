@@ -1,0 +1,185 @@
+<apex:page standardController="Contact" standardStylesheets="false" showHeader="false">
+  <apex:remoteObjects jsNamespace="RemoteObjectModel">
+    <apex:remoteObjectModel name="Contact" fields="Id,Social_Profiles__c,Facebook_URL__c,GitHub_URL__c,LinkedIn_URL__c,Twitter_URL__c,Twitter_Followers__c">
+    </apex:remoteObjectModel>
+  </apex:RemoteObjects>
+  <html>
+    <head>
+      <meta charset="UTF-8"/>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/0.11.0/fetch.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.6.1/lodash.min.js"></script>
+      <script src="/soap/ajax/36.0/connection.js"></script>
+      <script type="text/javascript">
+        "use strict";
+        (function () {
+          var FULLCONTACT_API_KEY = "YourApiKey";
+          var FULLCONTACT_API_URL = "https://api.fullcontact.com/v2/person.json";
+          var LAST_UPDATE = "{!Contact.Social_Profiles_Updated_At__c}";
+          var UPDATE_EVERY_N_DAYS = 14;
+          var WANTED = ["facebook", "github", "linkedin", "twitter"];
+          var CUSTOM_SOCIAL_PROFILES = {
+            facebook_url: "{!Contact.Facebook_URL__c}",
+            github_url: "{!Contact.GitHub_URL__c}",
+            linkedin_url: "{!Contact.LinkedIn_URL__c}",
+            twitter_url: "{!Contact.Twitter_URL__c}",
+            twitter_followers: "{!Contact.Twitter_Followers__c}"
+          };
+          var EMAILS = [
+            "{!Contact.Email}",
+            "{!Contact.Email2__c}",
+            "{!Contact.Personal_email_address__c}"
+          ].filter(Boolean);
+
+          function createSalesForceContact() {
+            var contact = new sforce.SObject("Contact");
+            contact.Id = "{!Contact.Id}";
+            return contact;
+          }
+
+          function loadSocialProfiles() {
+            return new Promise(function(resolve) {
+              retrieveSocialProfilesFromSobject().then(function(socialProfiles) {
+                if (allCustomFieldsFilled(socialProfiles.customFields)) {
+                  resolve(false);
+                } else if (allSocialProfilesPresent(socialProfiles.asText)) {
+                  resolve(parseInsideNode(socialProfiles.asText));
+                } else {
+                  collectFullContactData().then(function(spArray) {
+                    socialProfiles = _.flatten(spArray.filter(Boolean));
+                    contact.Social_Profiles__c = JSON.stringify(socialProfiles);
+                    resolve(socialProfiles);
+                  });
+                }
+              });
+            });
+          }
+
+          function retrieveSocialProfilesFromSobject() {
+            var remoteObjectModel = new RemoteObjectModel.Contact();
+            return new Promise(function(resolve) {
+              remoteObjectModel.retrieve({where: {Id: {eq: contact.Id}}}, function(err, res) {
+                var myContact = res[0];
+                resolve({
+                  asText: myContact.get("Social_Profiles__c"),
+                  customFields: {
+                    facebook_url: myContact.get("Facebook_URL__c"),
+                    github_url: myContact.get("GitHub_URL__c"),
+                    linkedin_url: myContact.get("LinkedIn_URL__c"),
+                    twitter_url: myContact.get("Twitter_URL__c"),
+                    twitter_followers: myContact.get("Twitter_Followers__c")
+                  }
+                });
+              });
+            });
+          }
+
+          function allCustomFieldsFilled(socialProfiles) {
+            return !_.includes(socialProfiles, undefined);
+          }
+
+          function allSocialProfilesPresent(asText) {
+            if (!asText || _.isEqual(asText, "{}")) { return false; }
+            var spArray = parseInsideNode(asText);
+            var present = spArray.map(function(e) {
+              if (WANTED.includes(e.type)) {
+                return e.type;
+              }
+            });
+            return _.isEqual(_.intersection(present, WANTED).sort(), WANTED);
+          }
+
+          function parseInsideNode(socialProfiles) {
+            var socialProfilesNode = document.createElement("div");
+            socialProfilesNode.style.display = "none";
+            socialProfilesNode.innerHTML = socialProfiles;
+            var socialProfilesJson = JSON.parse(socialProfilesNode.innerHTML);
+            socialProfilesNode.remove();
+            return socialProfilesJson;
+          }
+
+          function collectFullContactData() {
+            var promises = EMAILS.map(function(queryEmail) {
+              return fetch(getFullContactUrl(queryEmail)).then(getJson).then(getSocialProfiles);
+            });
+            return Promise.all(promises);
+          }
+
+          function getFullContactUrl(queryEmail) {
+            var query = "?email=" + queryEmail + "&apiKey=" + FULLCONTACT_API_KEY;
+            var url = FULLCONTACT_API_URL + query;
+            return url;
+          }
+
+          function getJson(response) {
+            return Promise.resolve(response.json());
+          }
+
+          function getSocialProfiles(json) {
+            return Promise.resolve(json.socialProfiles);
+          }
+
+          function assignToCustomFields(socialProfiles) {
+            return new Promise(function(resolve) {
+              var customSocialProfiles = CUSTOM_SOCIAL_PROFILES;
+              for (var csp in customSocialProfiles) {
+                var name = csp.split('_')[0];
+                var ref = csp.split('_')[1];
+                _.forEach(socialProfiles, function(sp) {
+                  if (sp && sp.typeName.toLowerCase() === name && !customSocialProfiles[csp]) {
+                    customSocialProfiles[csp] = sp[ref];
+                    contact[csp + "__c"] = sp[ref];
+                  }
+                });
+              }
+              resolve(contact);
+            });
+          }
+
+          function updateSobject(newContact) {
+            newContact.Social_Profiles_Updated_At__c = new Date(); // SalesForce converts dates to UTC on server, don't convert here or it will accrue.
+            var result = sforce.connection.update([newContact]);
+            if (result[0].getBoolean("success")) {
+              console.info("sObject update successful, reload the page.");
+            } else {
+              console.error("sObject update error, please report to dev support: " + result);
+            }
+          }
+
+          // DateTime comparison
+
+          function convertDateToUTC(date) {
+            return new Date(
+              date.getUTCFullYear(),
+              date.getUTCMonth(),
+              date.getUTCDate(),
+              date.getUTCHours(),
+              date.getUTCMinutes(),
+              date.getUTCSeconds()
+            );
+          }
+
+          function olderThanNDays(n) {
+            if (!LAST_UPDATE) { return true; }
+            var nDaysAgo = new Date();
+            var days = nDaysAgo.getUTCDate();
+            nDaysAgo.setDate(days - n);
+            return convertDateToUTC(new Date(LAST_UPDATE)) < convertDateToUTC(nDaysAgo);
+          }
+
+          /// DateTime comparison
+
+          if (typeof loadSocialProfiles === "function") {
+            if (olderThanNDays(UPDATE_EVERY_N_DAYS)) {
+              var contact = createSalesForceContact();
+              loadSocialProfiles().then(assignToCustomFields).then(updateSobject);
+            } else {
+              console.info("Social Profiles valid. Update interval is set to " + UPDATE_EVERY_N_DAYS + " days.");
+            }
+          }
+        })();
+      </script>
+    </head>
+    <body>
+    </body>
+  </html>
+</apex:page>
